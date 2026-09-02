@@ -58,8 +58,11 @@ jobs:
           "
 
   test-python:
-    name: Test Python Script
-    runs-on: ubuntu-latest
+    name: Test Python (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -73,10 +76,12 @@ jobs:
         run: python3 scripts/python/compose_results.py --help
 
       - name: Test compose with sample data
+        shell: bash
         run: |
-          mkdir -p /tmp/test-results
+          RESULTS_DIR="${{ runner.temp }}/test-results"
+          mkdir -p "$RESULTS_DIR"
 
-          cat > /tmp/test-results/epistemic-after_plan-20260902T140000Z.json << 'ENDJSON'
+          cat > "$RESULTS_DIR/epistemic-after_plan-20260902T140000Z.json" << 'ENDJSON'
           {
             "schema_version": "1.0",
             "evaluator": {"id": "epistemic", "version": "0.1.0", "name": "Epistemic Checker"},
@@ -93,7 +98,7 @@ jobs:
           }
           ENDJSON
 
-          cat > /tmp/test-results/schema-validate-after_plan-20260902T140100Z.json << 'ENDJSON'
+          cat > "$RESULTS_DIR/schema-validate-after_plan-20260902T140100Z.json" << 'ENDJSON'
           {
             "schema_version": "1.0",
             "evaluator": {"id": "schema-validate", "version": "0.2.0", "name": "Schema Validator"},
@@ -108,34 +113,45 @@ jobs:
           ENDJSON
 
           echo "=== Strict ==="
-          python3 scripts/python/compose_results.py --results-dir /tmp/test-results --phase after_plan --strategy strict --json | python3 -c "import sys,json; d=json.load(sys.stdin); assert d['composed_outcome']=='warn', f'Expected warn, got {d[\"composed_outcome\"]}'; print(f'PASS: strict={d[\"composed_outcome\"]}')"
+          python3 scripts/python/compose_results.py --results-dir "$RESULTS_DIR" --phase after_plan --strategy strict --json | python3 -c "import sys,json; d=json.load(sys.stdin); assert d['composed_outcome']=='warn', f'Expected warn, got {d[\"composed_outcome\"]}'; print(f'PASS: strict={d[\"composed_outcome\"]}')"
 
           echo "=== Majority ==="
-          python3 scripts/python/compose_results.py --results-dir /tmp/test-results --phase after_plan --strategy majority --json | python3 -c "import sys,json; d=json.load(sys.stdin); assert d['composed_outcome']=='warn', f'Expected warn, got {d[\"composed_outcome\"]}'; print(f'PASS: majority={d[\"composed_outcome\"]}')"
+          python3 scripts/python/compose_results.py --results-dir "$RESULTS_DIR" --phase after_plan --strategy majority --json | python3 -c "import sys,json; d=json.load(sys.stdin); assert d['composed_outcome']=='warn', f'Expected warn, got {d[\"composed_outcome\"]}'; print(f'PASS: majority={d[\"composed_outcome\"]}')"
 
           echo "=== Optimistic ==="
-          python3 scripts/python/compose_results.py --results-dir /tmp/test-results --phase after_plan --strategy optimistic --json | python3 -c "import sys,json; d=json.load(sys.stdin); assert d['composed_outcome']=='pass', f'Expected pass, got {d[\"composed_outcome\"]}'; print(f'PASS: optimistic={d[\"composed_outcome\"]}')"
+          python3 scripts/python/compose_results.py --results-dir "$RESULTS_DIR" --phase after_plan --strategy optimistic --json | python3 -c "import sys,json; d=json.load(sys.stdin); assert d['composed_outcome']=='pass', f'Expected pass, got {d[\"composed_outcome\"]}'; print(f'PASS: optimistic={d[\"composed_outcome\"]}')"
 
           echo "=== Empty dir ==="
-          mkdir -p /tmp/empty-results
-          python3 scripts/python/compose_results.py --results-dir /tmp/empty-results --phase after_plan --json | python3 -c "import sys,json; d=json.load(sys.stdin); assert d['composed_outcome']=='pass', f'Expected pass, got {d[\"composed_outcome\"]}'; print(f'PASS: empty={d[\"composed_outcome\"]}')"
+          EMPTY_DIR="${{ runner.temp }}/empty-results"
+          mkdir -p "$EMPTY_DIR"
+          python3 scripts/python/compose_results.py --results-dir "$EMPTY_DIR" --phase after_plan --json | python3 -c "import sys,json; d=json.load(sys.stdin); assert d['composed_outcome']=='pass', f'Expected pass, got {d[\"composed_outcome\"]}'; print(f'PASS: empty={d[\"composed_outcome\"]}')"
 
   test-bash:
-    name: Test Bash Script
-    runs-on: ubuntu-latest
+    name: Test Bash (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Install jq
+      - name: Install jq (Linux)
+        if: runner.os == 'Linux'
         run: sudo apt-get update -qq && sudo apt-get install -y -qq jq
 
+      - name: Install jq (macOS)
+        if: runner.os == 'macOS'
+        run: brew install jq
+
       - name: Test compose-results.sh with sample data
+        shell: bash
         run: |
           chmod +x scripts/bash/compose-results.sh
-          mkdir -p /tmp/test-results
+          RESULTS_DIR="${{ runner.temp }}/test-results"
+          mkdir -p "$RESULTS_DIR"
 
-          cat > /tmp/test-results/epistemic-after_plan-20260902T140000Z.json << 'ENDJSON'
+          cat > "$RESULTS_DIR/epistemic-after_plan-20260902T140000Z.json" << 'ENDJSON'
           {
             "schema_version": "1.0",
             "evaluator": {"id": "epistemic", "version": "0.1.0", "name": "Epistemic Checker"},
@@ -152,7 +168,7 @@ jobs:
           }
           ENDJSON
 
-          cat > /tmp/test-results/schema-validate-after_plan-20260902T140100Z.json << 'ENDJSON'
+          cat > "$RESULTS_DIR/schema-validate-after_plan-20260902T140100Z.json" << 'ENDJSON'
           {
             "schema_version": "1.0",
             "evaluator": {"id": "schema-validate", "version": "0.2.0", "name": "Schema Validator"},
@@ -167,21 +183,25 @@ jobs:
           ENDJSON
 
           echo "=== Strict ==="
-          bash scripts/bash/compose-results.sh --results-dir /tmp/test-results --phase after_plan --strategy strict | python3 -c "import sys,json; d=json.load(sys.stdin); assert d['composed_outcome']=='warn', f'Expected warn, got {d[\"composed_outcome\"]}'; print(f'PASS: strict={d[\"composed_outcome\"]}')"
+          bash scripts/bash/compose-results.sh --results-dir "$RESULTS_DIR" --phase after_plan --strategy strict | python3 -c "import sys,json; d=json.load(sys.stdin); assert d['composed_outcome']=='warn', f'Expected warn, got {d[\"composed_outcome\"]}'; print(f'PASS: strict={d[\"composed_outcome\"]}')"
 
           echo "=== Majority ==="
-          bash scripts/bash/compose-results.sh --results-dir /tmp/test-results --phase after_plan --strategy majority | python3 -c "import sys,json; d=json.load(sys.stdin); assert d['composed_outcome']=='warn', f'Expected warn, got {d[\"composed_outcome\"]}'; print(f'PASS: majority={d[\"composed_outcome\"]}')"
+          bash scripts/bash/compose-results.sh --results-dir "$RESULTS_DIR" --phase after_plan --strategy majority | python3 -c "import sys,json; d=json.load(sys.stdin); assert d['composed_outcome']=='warn', f'Expected warn, got {d[\"composed_outcome\"]}'; print(f'PASS: majority={d[\"composed_outcome\"]}')"
 
           echo "=== Optimistic ==="
-          bash scripts/bash/compose-results.sh --results-dir /tmp/test-results --phase after_plan --strategy optimistic | python3 -c "import sys,json; d=json.load(sys.stdin); assert d['composed_outcome']=='pass', f'Expected pass, got {d[\"composed_outcome\"]}'; print(f'PASS: optimistic={d[\"composed_outcome\"]}')"
+          bash scripts/bash/compose-results.sh --results-dir "$RESULTS_DIR" --phase after_plan --strategy optimistic | python3 -c "import sys,json; d=json.load(sys.stdin); assert d['composed_outcome']=='pass', f'Expected pass, got {d[\"composed_outcome\"]}'; print(f'PASS: optimistic={d[\"composed_outcome\"]}')"
 
           echo "=== Empty dir ==="
-          mkdir -p /tmp/empty-results
-          bash scripts/bash/compose-results.sh --results-dir /tmp/empty-results --phase after_plan | python3 -c "import sys,json; d=json.load(sys.stdin); assert d['composed_outcome']=='pass', f'Expected pass, got {d[\"composed_outcome\"]}'; print(f'PASS: empty={d[\"composed_outcome\"]}')"
+          EMPTY_DIR="${{ runner.temp }}/empty-results"
+          mkdir -p "$EMPTY_DIR"
+          bash scripts/bash/compose-results.sh --results-dir "$EMPTY_DIR" --phase after_plan | python3 -c "import sys,json; d=json.load(sys.stdin); assert d['composed_outcome']=='pass', f'Expected pass, got {d[\"composed_outcome\"]}'; print(f'PASS: empty={d[\"composed_outcome\"]}')"
 
   test-powershell:
-    name: Test PowerShell Script
-    runs-on: windows-latest
+    name: Test PowerShell (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -190,7 +210,8 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
-          New-Item -ItemType Directory -Force -Path C:\test-results
+          $ResultsDir = Join-Path $env:RUNNER_TEMP "test-results"
+          New-Item -ItemType Directory -Force -Path $ResultsDir | Out-Null
 
           @'
           {
@@ -207,7 +228,7 @@ jobs:
             "metadata": {"timestamp": "2026-09-02T14:00:00Z", "duration_ms": 150, "artifacts_evaluated": ["plan.md"], "model": null, "deterministic": true},
             "state": {}
           }
-          '@ | Out-File -Encoding utf8 C:\test-results\epistemic-after_plan-20260902T140000Z.json
+          '@ | Out-File -Encoding utf8 (Join-Path $ResultsDir "epistemic-after_plan-20260902T140000Z.json")
 
           @'
           {
@@ -221,25 +242,26 @@ jobs:
             "metadata": {"timestamp": "2026-09-02T14:01:00Z", "duration_ms": 45, "artifacts_evaluated": ["plan.md"], "model": null, "deterministic": true},
             "state": {}
           }
-          '@ | Out-File -Encoding utf8 C:\test-results\schema-validate-after_plan-20260902T140100Z.json
+          '@ | Out-File -Encoding utf8 (Join-Path $ResultsDir "schema-validate-after_plan-20260902T140100Z.json")
 
           Write-Host "=== Strict ==="
-          $result = & .\scripts\powershell\compose-results.ps1 -ResultsDir C:\test-results -Phase after_plan -Strategy strict | ConvertFrom-Json
+          $result = & .\scripts\powershell\compose-results.ps1 -ResultsDir $ResultsDir -Phase after_plan -Strategy strict | ConvertFrom-Json
           if ($result.composed_outcome -ne 'warn') { throw "Expected warn, got $($result.composed_outcome)" }
           Write-Host "PASS: strict=$($result.composed_outcome)"
 
           Write-Host "=== Majority ==="
-          $result = & .\scripts\powershell\compose-results.ps1 -ResultsDir C:\test-results -Phase after_plan -Strategy majority | ConvertFrom-Json
+          $result = & .\scripts\powershell\compose-results.ps1 -ResultsDir $ResultsDir -Phase after_plan -Strategy majority | ConvertFrom-Json
           if ($result.composed_outcome -ne 'warn') { throw "Expected warn, got $($result.composed_outcome)" }
           Write-Host "PASS: majority=$($result.composed_outcome)"
 
           Write-Host "=== Optimistic ==="
-          $result = & .\scripts\powershell\compose-results.ps1 -ResultsDir C:\test-results -Phase after_plan -Strategy optimistic | ConvertFrom-Json
+          $result = & .\scripts\powershell\compose-results.ps1 -ResultsDir $ResultsDir -Phase after_plan -Strategy optimistic | ConvertFrom-Json
           if ($result.composed_outcome -ne 'pass') { throw "Expected pass, got $($result.composed_outcome)" }
           Write-Host "PASS: optimistic=$($result.composed_outcome)"
 
           Write-Host "=== Empty dir ==="
-          New-Item -ItemType Directory -Force -Path C:\empty-results
-          $result = & .\scripts\powershell\compose-results.ps1 -ResultsDir C:\empty-results -Phase after_plan | ConvertFrom-Json
+          $EmptyDir = Join-Path $env:RUNNER_TEMP "empty-results"
+          New-Item -ItemType Directory -Force -Path $EmptyDir | Out-Null
+          $result = & .\scripts\powershell\compose-results.ps1 -ResultsDir $EmptyDir -Phase after_plan | ConvertFrom-Json
           if ($result.composed_outcome -ne 'pass') { throw "Expected pass, got $($result.composed_outcome)" }
           Write-Host "PASS: empty=$($result.composed_outcome)"
