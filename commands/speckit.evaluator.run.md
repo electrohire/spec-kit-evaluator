@@ -1,9 +1,5 @@
 ---
 description: "Run an evaluator against one or more artifacts and produce a versioned machine-readable result conforming to the evaluator result contract"
-scripts:
-  sh: ../../scripts/bash/compose-results.sh
-  ps: ../../scripts/powershell/compose-results.ps1
-  py: ../../scripts/python/compose_results.py
 ---
 
 # Evaluator Run
