@@ -102,7 +102,13 @@ else
             elif outcomes | index("gather_evidence") then "gather_evidence"
             else "block" end
         elif strategy == "majority" then
-            (outcomes | group_by(.) | sort_by(-length) | .[0][0])
+            (outcomes | group_by(.) | sort_by([-(length),
+                if .[0] == "block" then 0
+                elif .[0] == "gather_evidence" then 1
+                elif .[0] == "iterate" then 2
+                elif .[0] == "clarify" then 3
+                elif .[0] == "warn" then 4
+                else 5 end]) | .[0][0])
         else
             if outcomes | index("block") then "block"
             elif outcomes | index("gather_evidence") then "gather_evidence"
@@ -112,7 +118,7 @@ else
             else "pass" end
         end;
 
-    [ inputs ] as $results
+    . as $results
     | ($results | map(.outcome)) as $outcomes
     | ($results | map(.findings // []) | flatten) as $all_findings
     | resolve_outcome($outcomes; $STRATEGY) as $composed_outcome

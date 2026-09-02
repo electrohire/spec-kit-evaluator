@@ -128,6 +128,11 @@ if ($resultFiles.Count -eq 0) {
             }
             "majority" {
                 $grouped = $Outcomes | Group-Object | Sort-Object Count -Descending
+                $maxCount = $grouped[0].Count
+                $tied = $grouped | Where-Object { $_.Count -eq $maxCount } | ForEach-Object { $_.Name }
+                foreach ($c in $precedence) {
+                    if ($tied -contains $c) { return $c }
+                }
                 return $grouped[0].Name
             }
             default {
