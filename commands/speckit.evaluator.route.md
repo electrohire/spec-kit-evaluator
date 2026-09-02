@@ -153,3 +153,26 @@ Output:
 - Never recommend budget when there are unresolved `block` outcomes.
 - Always show the cost comparison — let the human see what they're saving.
 - The routing recommendation is advisory — the human operator always has final say.
+
+## Workflow Integration (Explicit Wiring)
+
+The evaluator's model routing recommendation can be wired into workflows using
+the existing expression mechanism. This keeps the dataflow visible and
+intentional — no engine changes needed.
+
+```yaml
+steps:
+  - id: evaluate
+    type: command
+    command: speckit.evaluator.route
+    input:
+      phase: plan
+
+  - id: implement
+    type: command
+    command: speckit.implement
+    model: "{{ steps.evaluate.output.model_routing.recommended_tier }}"
+```
+
+Each downstream step independently decides whether to use the recommendation.
+Workflow authors can validate, transform, or ignore it as needed.
