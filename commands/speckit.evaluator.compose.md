@@ -1,9 +1,9 @@
 ---
 description: "Compose multiple evaluator results at a lifecycle point with deterministic precedence"
 scripts:
-  sh: ../../scripts/bash/compose-results.sh
-  ps: ../../scripts/powershell/compose-results.ps1
-  py: ../../scripts/python/compose_results.py
+  sh: ../scripts/bash/compose-results.sh
+  ps: ../scripts/powershell/compose-results.ps1
+  py: ../scripts/python/compose_results.py
 ---
 
 # Evaluator Compose
@@ -31,6 +31,14 @@ The user input specifies **which results to compose**. Accept:
 - Each result file MUST be valid JSON conforming to the evaluator result schema. Skip and report invalid files; do not compose invalid data.
 
 ## Execution
+
+Run `{SCRIPT}` with the appropriate arguments to compose the results:
+
+```bash
+{SCRIPT} --results-dir .specify/extensions/evaluator/results/ --phase <phase> [--strategy strict|majority|optimistic] [--output <path>]
+```
+
+The script performs the steps below. Use these rules as reference for interpreting the output.
 
 ### 1. Collect Results
 
