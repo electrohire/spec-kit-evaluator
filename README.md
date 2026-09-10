@@ -163,4 +163,4 @@ See `templates/evaluator-result-template.json` for a starting point.
 
 ## License
 
-MIT — see the [Spec Kit license](../../LICENSE).
+MIT — see the [LICENSE](./LICENSE).
