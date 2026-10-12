@@ -112,7 +112,7 @@ no_results_composed() {
                 severity: "critical",
                 kind: "missing_evidence",
                 subject: $phase,
-                description: "No valid evaluator results were available to compose for this phase. A missing/crashed evaluator or a typo-d phase must never read downstream as a green gate.",
+                description: "No valid evaluator results were available to compose for this phase. A missing/crashed evaluator or a mistyped phase must never read downstream as a green gate.",
                 evidence_refs: [],
                 provenance_refs: [],
                 uncertainty: "insufficient_evidence",
