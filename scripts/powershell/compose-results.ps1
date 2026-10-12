@@ -233,7 +233,7 @@ foreach ($file in $resultFiles) {
         continue
     }
     $identity = "$($data.evaluator.id)@$($data.evaluator.version)"
-    if ($validByIdentity.ContainsKey($identity)) {
+    if ($validByIdentity.Contains($identity)) {
         $duplicateFiles += $validFileByIdentity[$identity]
     }
     # Files are name-sorted; the later (greatest) filename wins.
