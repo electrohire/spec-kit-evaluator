@@ -52,3 +52,40 @@ branch: an AEE Evaluator Contract result now carries
   result schema's required shape (`lane_states` is additive
   metadata).
 - No engine or extension changes here.
+
+## Addendum — 2026-10-12: cross-composer parity completed
+
+The implementation above landed lane pairing in the Python composer
+only. An integration audit found that the bash
+(`scripts/bash/compose-results.sh`) and PowerShell
+(`scripts/powershell/compose-results.ps1`) composers did not carry
+it, and that the parity harness asserted only outcome + exit code,
+so the divergence was invisible to the suite. That gap is closed on
+branch `impl/004-p5-lane-parity`:
+
+- Both shell composers now implement P5-V1/V2/V4 exactly as the
+  Python composer does: `metadata.lanes` is carried verbatim per
+  evaluator as `metadata.lane_states` (with `not_understood`
+  defaulting to `[]`), the lane-2 lag sentence is appended to the
+  composed summary after the strategy sentence and before the
+  500-char cap whenever any carried lane state lags (integer
+  `below_explained` / `verified_unexplained` counts read from
+  `lane_2.bundle`, falling back to `lane_2` itself, plus residual
+  `not_understood` entries), and lane-less inputs produce no
+  `lane_states` key and no lane sentence. No lane score is computed
+  anywhere (P5-V3).
+- The parity harness (`tests/test_compose_parity.py`) now asserts
+  lane pairing per composer on fields AND values: four shared lane
+  fixtures (`lanes-lagging`, `lanes-clean`, `lanes-flat`,
+  `lanes-mixed`) plus the lane-less `valid-pass` case, with
+  `lane_states` compared deep-equal to the expected pairs and the
+  lag sentence checked present/absent as the contract requires. A
+  negative control confirms the strengthened harness fails against
+  the pre-port bash composer (8 subtest failures) and passes against
+  the port. PowerShell verification is by harness design + CI —
+  `pwsh` is unavailable on the authoring VM, so the ps1 lane leg
+  skips cleanly locally and executes in CI, whose runners ship pwsh
+  (the unittest matrix job and the dedicated PowerShell job).
+- Suite on this branch: 38 passed + 2 skipped (both skips are the
+  pwsh legs) against the integration baseline of 35 passed + 1
+  skipped; no baseline test regressed.

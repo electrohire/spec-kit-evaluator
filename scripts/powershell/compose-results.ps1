@@ -15,6 +15,11 @@
 #     strategy — never skipped toward pass, never a crash.
 #   * Dedup/counting use payload evaluator.id+version (greatest
 #     filename wins); finding ids are namespaced "<evaluator>:<id>".
+#   * Lane pairing (Spec 004 P5): a result carrying the AEE lane pair
+#     in metadata.lanes is carried through verbatim per evaluator as
+#     metadata.lane_states — never merged, averaged, or scored — and
+#     the composed summary states lane-2 lag whenever present,
+#     including on a pass. Lane-less inputs compose exactly as before.
 #   * majority/optimistic results are marked non-gating in metadata.
 #   * Exit codes: 0 pass/warn, 1 iterate/clarify/gather_evidence,
 #     2 block or hard error.
@@ -193,6 +198,59 @@ function Resolve-Outcome([string[]]$Outcomes, [string]$Strat) {
     }
 }
 
+function Get-LaneLagSummary($LaneStates) {
+    # Spec 004 P5-V2: one headline sentence naming lane-2 lag, or ""
+    # when no carried lane state lags. Signals are read from the
+    # carried records (lane_2.bundle, falling back to lane_2 itself
+    # when no bundle object is present); counts are reported as the
+    # records state them — nothing is scored or combined, and lane 2
+    # contains no score to invent. Only integer counts signal (a
+    # non-integer value states nothing), matching the Python
+    # composer's isinstance(int) checks.
+    $parts = @()
+    foreach ($state in $LaneStates) {
+        $lane2 = $state["lane_2"]
+        $bundle = $null
+        if ($null -ne $lane2 -and $lane2 -is [System.Management.Automation.PSCustomObject]) {
+            if ($lane2.PSObject.Properties["bundle"] -and $lane2.bundle -is [System.Management.Automation.PSCustomObject]) {
+                $bundle = $lane2.bundle
+            } else {
+                $bundle = $lane2
+            }
+        }
+        $signals = @()
+        if ($null -ne $bundle) {
+            $below = $null
+            if ($bundle.PSObject.Properties["below_explained"]) { $below = $bundle.below_explained }
+            if (($below -is [int] -or $below -is [long]) -and $below -ne 0) {
+                $signals += "$below claim(s) below the explained stage"
+            }
+            $unexplained = $null
+            if ($bundle.PSObject.Properties["verified_unexplained"]) { $unexplained = $bundle.verified_unexplained }
+            if (($unexplained -is [int] -or $unexplained -is [long]) -and $unexplained -ne 0) {
+                $signals += "$unexplained verified-but-unexplained claim(s)"
+            }
+        }
+        $unknowns = $state["not_understood"]
+        $unknownCount = 0
+        if ($null -ne $unknowns) {
+            $unknownCount = if ($unknowns -is [System.Array]) { $unknowns.Count } else { 1 }
+        }
+        if ($unknownCount -gt 0) {
+            $signals += "$unknownCount residual unknown(s) not understood"
+        }
+        if ($signals.Count -gt 0) {
+            $eid = $state["evaluator_id"]
+            $parts += "${eid}: $($signals -join ', ')"
+        }
+    }
+    if ($parts.Count -eq 0) { return "" }
+    # The separator is an em dash (U+2014), built from its code point
+    # so this file stays ASCII-clean under any script encoding.
+    $dash = [string][char]0x2014
+    return "Lane 2 (human acceptance) lags lane 1 (machine verification) $dash $($parts -join '; '). A composed outcome is a checking-stage decision, not acceptance or digestion."
+}
+
 $timestamp = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
 
 if (-not (Test-Path $ResultsDir -PathType Container)) {
@@ -246,6 +304,41 @@ $results = @($validByIdentity.Values)
 if ($results.Count -eq 0 -and $invalid.Count -eq 0) {
     Emit-Composed (New-NoResultsComposed "No result files remained after filtering.")
 }
+
+# Lane states (Spec 004 P5-V1/V2): an input result may carry the
+# AEE lane pair in metadata.lanes (lane 1 machine verification,
+# lane 2 human acceptance). Composition carries each pair through
+# VERBATIM, per evaluator — the lanes are never merged, averaged,
+# or reduced to a single figure (lane 2 contains no score, and
+# none is invented here). Lane-less results get no lane_states key.
+$laneStates = @()
+foreach ($r in $results) {
+    if (-not $r.PSObject.Properties["metadata"] -or $null -eq $r.metadata -or
+        $r.metadata -isnot [System.Management.Automation.PSCustomObject]) {
+        continue
+    }
+    $metadata = $r.metadata
+    if (-not $metadata.PSObject.Properties["lanes"] -or $null -eq $metadata.lanes -or
+        $metadata.lanes -isnot [System.Management.Automation.PSCustomObject]) {
+        continue
+    }
+    $lanes = $metadata.lanes
+    $lane1 = $null
+    if ($lanes.PSObject.Properties["lane_1"]) { $lane1 = $lanes.lane_1 }
+    $lane2 = $null
+    if ($lanes.PSObject.Properties["lane_2"]) { $lane2 = $lanes.lane_2 }
+    $notUnderstood = @()
+    if ($metadata.PSObject.Properties["not_understood"] -and $null -ne $metadata.not_understood) {
+        $notUnderstood = $metadata.not_understood
+    }
+    $laneStates += [ordered]@{
+        evaluator_id = $r.evaluator.id
+        lane_1 = $lane1
+        lane_2 = $lane2
+        not_understood = $notUnderstood
+    }
+}
+$laneLag = Get-LaneLagSummary $laneStates
 
 # Findings: namespaced per evaluator; invalid inputs wrapped as blocks.
 $allFindings = @()
@@ -343,6 +436,12 @@ if ($invalid.Count -gt 0) {
 if (-not $gating) {
     $summaryParts += " Strategy '$Strategy' is non-gating (advisory)."
 }
+if ($laneLag -ne "") {
+    # P5-V2: lag is stated in the headline itself, pass or not — a
+    # lane-1-green composed outcome must never read as settled,
+    # accepted, or digested work.
+    $summaryParts += " $laneLag"
+}
 if ($summaryParts.Length -gt 500) { $summaryParts = $summaryParts.Substring(0, 500) }
 
 $metadata = [ordered]@{
@@ -357,6 +456,9 @@ $metadata = [ordered]@{
     invalid_results = @($invalid | ForEach-Object { [ordered]@{ file = $_.file; reason = $_.problem } })
     duplicate_results_ignored = $duplicateFiles
     gating = $gating
+}
+if ($laneStates.Count -gt 0) {
+    $metadata["lane_states"] = $laneStates
 }
 if (-not $gating) {
     $metadata["non_gating_reason"] = "Strategy '$Strategy' composes advisory outcomes; the result is marked non-gating and must not be used as a release gate (Spec 003 FR-6.6)."

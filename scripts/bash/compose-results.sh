@@ -16,6 +16,11 @@
 #     every strategy — never skipped toward pass, never a crash.
 #   * Dedup/counting use payload evaluator.id+version (greatest
 #     filename wins); finding ids are namespaced "<evaluator>:<id>".
+#   * Lane pairing (Spec 004 P5): a result carrying the AEE lane pair
+#     in metadata.lanes is carried through verbatim per evaluator as
+#     metadata.lane_states — never merged, averaged, or scored — and
+#     the composed summary states lane-2 lag whenever present,
+#     including on a pass. Lane-less inputs compose exactly as before.
 #   * majority/optimistic results are marked non-gating in metadata.
 #   * Exit codes: 0 pass/warn, 1 iterate/clarify/gather_evidence,
 #     2 block or hard error.
@@ -237,6 +242,44 @@ def resolve_outcome(outcomes; strategy):
     else
         (precedence | map(select(in_list(outcomes))) | .[0] // "pass")
     end;
+def lane_states_of($results):
+    # Spec 004 P5-V1: carry each lanes-carrying evaluator pair
+    # through verbatim — never merged, averaged, or reduced.
+    [ $results[]
+      | select((.metadata | type) == "object")
+      | select((.metadata.lanes | type) == "object")
+      | {
+          evaluator_id: .evaluator.id,
+          lane_1: .metadata.lanes.lane_1,
+          lane_2: .metadata.lanes.lane_2,
+          not_understood: (.metadata.not_understood // [])
+        } ];
+def lane_lag_summary($states):
+    # Spec 004 P5-V2: one headline sentence naming lane-2 lag, or ""
+    # when no carried lane state lags. Signals are read from the
+    # carried records (lane_2.bundle, falling back to lane_2 itself);
+    # counts are reported as the records state them — nothing is
+    # scored or combined, and lane 2 contains no score to invent.
+    [ $states[]
+      | . as $state
+      | (if (.lane_2 | type) == "object"
+         then (if (.lane_2.bundle | type) == "object" then .lane_2.bundle else .lane_2 end)
+         else {} end) as $bundle
+      | [ if (($bundle.below_explained | type) == "number" and $bundle.below_explained != 0)
+          then "\($bundle.below_explained) claim(s) below the explained stage" else empty end,
+          if (($bundle.verified_unexplained | type) == "number" and $bundle.verified_unexplained != 0)
+          then "\($bundle.verified_unexplained) verified-but-unexplained claim(s)" else empty end,
+          if ((.not_understood // []) | length) > 0
+          then "\((.not_understood // []) | length) residual unknown(s) not understood" else empty end
+        ] as $signals
+      | select(($signals | length) > 0)
+      | "\($state.evaluator_id): \($signals | join(", "))"
+    ] as $parts
+    | if ($parts | length) == 0 then ""
+      else "Lane 2 (human acceptance) lags lane 1 (machine verification) — "
+           + ($parts | join("; "))
+           + ". A composed outcome is a checking-stage decision, not acceptance or digestion."
+      end;
 
 . as $verdicts
 | ([$verdicts[] | select(.ok)]) as $valid_raw
@@ -246,6 +289,8 @@ def resolve_outcome(outcomes; strategy):
    | map(max_by(.file))) as $selected
 | ([$valid_raw[].file] - [$selected[].file]) as $duplicates
 | ([$selected[].result]) as $results
+| (lane_states_of($results)) as $lane_states
+| (lane_lag_summary($lane_states)) as $lane_lag
 | ([$results[].outcome] + ($invalid | map("block"))) as $outcomes
 | resolve_outcome($outcomes; $STRATEGY) as $composed_outcome
 | ([$selected[] | .result as $r | $r.findings[] | .id = "\($r.evaluator.id):\(.id)"]) as $valid_findings
@@ -276,6 +321,7 @@ def resolve_outcome(outcomes; strategy):
          + [$invalid[] | "invalid:\(.file)=block"]) | join(", ")). \($all_findings | length) finding(s) total."
       + (if ($invalid | length) > 0 then " \($invalid | length) invalid result file(s) were wrapped as blocking findings." else "" end)
       + (if $STRATEGY != "strict" then " Strategy \($STRATEGY) is non-gating (advisory)." else "" end)
+      + (if $lane_lag != "" then " \($lane_lag)" else "" end)
     )[0:500],
     findings: $all_findings,
     next_action: {
@@ -301,6 +347,7 @@ def resolve_outcome(outcomes; strategy):
         duplicate_results_ignored: $duplicates,
         gating: ($STRATEGY == "strict")
     }
+    + (if ($lane_states | length) > 0 then { lane_states: $lane_states } else {} end)
     + (if $STRATEGY != "strict" then { non_gating_reason: "Strategy \($STRATEGY) composes advisory outcomes; the result is marked non-gating and must not be used as a release gate (Spec 003 FR-6.6)." } else {} end)
     + (if (($outcomes | index("block")) != null and $composed_outcome != "block") then { block_overridden: true } else {} end)),
     state: ($selected | map({ key: .result.evaluator.id, value: (.result.state // {}) }) | from_entries)

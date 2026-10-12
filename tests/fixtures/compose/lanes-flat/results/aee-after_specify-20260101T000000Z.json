@@ -1,0 +1,1 @@
+{"schema_version":"1.0","evaluator":{"id":"aee","version":"1.0.0"},"phase":"after_specify","outcome":"pass","summary":"AEE assessment composed.","findings":[],"metadata":{"lanes":{"lane_1":{"label":"machine verification","bundle":{"outcome":"pass"}},"lane_2":{"label":"human acceptance","below_explained":1,"verified_unexplained":0}}}}
