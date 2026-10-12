@@ -1,0 +1,119 @@
+{
+  "schema_version": "1.0",
+  "claims": [
+    {
+      "boundary": [
+        "scripts/python/compose_results.py composition output"
+      ],
+      "conflicts_with": [],
+      "depends_on": [],
+      "evidence": [
+        {
+          "ref": "tests/test_lane_paired_composition.py::test_lanes_carried_verbatim_and_lag_stated_on_pass",
+          "kind": "observed",
+          "direction": "supports",
+          "source_quality": "test",
+          "source_id": "p5-eval-suite-2026-10-12",
+          "description": "Composed metadata.lane_states carries the input lane pair value-for-value per evaluator, with not_understood."
+        },
+        {
+          "ref": "scripts/python/compose_results.py lane_states collection",
+          "kind": "observed",
+          "direction": "supports",
+          "source_quality": "artifact",
+          "source_id": "p5-eval-after-inspection-2026-10-12",
+          "description": "Lane states are copied from input metadata; composition computes nothing over them."
+        }
+      ],
+      "falsification_tests": [
+        "Compose a result set containing an AEE result with metadata.lanes and find no lane_states in the composed metadata, or find the lane pair altered from the input."
+      ],
+      "id": "EVAL-P5-01",
+      "kind": "requirement",
+      "status": "supported",
+      "text": "Composition carries lane state through: a result whose metadata carries the lane pair produces a composed result whose metadata.lane_states names that evaluator and its lane pair verbatim, one entry per lanes-carrying evaluator."
+    },
+    {
+      "boundary": [
+        "scripts/python/compose_results.py summary construction"
+      ],
+      "conflicts_with": [],
+      "depends_on": [
+        "EVAL-P5-01"
+      ],
+      "evidence": [
+        {
+          "ref": "tests/test_lane_paired_composition.py::test_lanes_carried_verbatim_and_lag_stated_on_pass",
+          "kind": "observed",
+          "direction": "supports",
+          "source_quality": "test",
+          "source_id": "p5-eval-suite-2026-10-12",
+          "description": "On a composed pass, the summary states: 2 claims below the explained stage, 1 verified-but-unexplained, residual unknowns, and that the outcome is not acceptance or digestion."
+        },
+        {
+          "ref": "tests/test_lane_paired_composition.py::test_two_lanes_carrying_evaluators_stay_separate",
+          "kind": "observed",
+          "direction": "supports",
+          "source_quality": "test",
+          "source_id": "p5-eval-suite-2026-10-12",
+          "description": "A non-lagging evaluator contributes no lag language; lag is attributed per evaluator."
+        }
+      ],
+      "falsification_tests": [
+        "Compose a passing set whose AEE lane 2 shows claims below the explained stage and observe a composed summary that does not state the lag."
+      ],
+      "id": "EVAL-P5-02",
+      "kind": "requirement",
+      "status": "supported",
+      "text": "The composed summary states lane-2 lag whenever a carried lane state shows it - claims below the explained stage, verified-but-unexplained claims, or residual not_understood entries - including when the composed outcome is pass."
+    },
+    {
+      "boundary": [
+        "scripts/python/compose_results.py outcome resolution and output shape"
+      ],
+      "conflicts_with": [],
+      "depends_on": [],
+      "evidence": [
+        {
+          "ref": "tests/test_lane_paired_composition.py::test_no_score_is_computed_from_lane_2",
+          "kind": "observed",
+          "direction": "supports",
+          "source_quality": "test",
+          "source_id": "p5-eval-suite-2026-10-12",
+          "description": "Every number under the composed lane_2 equals a number from the input record - composition computed none."
+        }
+      ],
+      "falsification_tests": [
+        "Find any composed output containing a numeric score derived from lane-2 state, or an averaged/blended lane figure."
+      ],
+      "id": "EVAL-P5-03",
+      "kind": "requirement",
+      "status": "supported",
+      "text": "Composition never re-blends the lanes: outcome resolution stays strategy precedence over outcome strings, and no composed output contains a score computed from lane-2 state or any blended lane figure."
+    },
+    {
+      "boundary": [
+        "scripts/python/compose_results.py with lane-less inputs"
+      ],
+      "conflicts_with": [],
+      "depends_on": [],
+      "evidence": [
+        {
+          "ref": "tests/test_lane_paired_composition.py::test_laneless_results_compose_exactly_as_before",
+          "kind": "observed",
+          "direction": "supports",
+          "source_quality": "test",
+          "source_id": "p5-eval-suite-2026-10-12",
+          "description": "Lane-less composition has no lane_states key and no lane language; the full FR-6 suite (31 tests) passes unchanged."
+        }
+      ],
+      "falsification_tests": [
+        "Compose lane-less results after this change and find a lane_states key or a lane sentence that was not there before."
+      ],
+      "id": "EVAL-P5-04",
+      "kind": "requirement",
+      "status": "supported",
+      "text": "Lane-less inputs compose exactly as before: no lane_states key and no lane language appears in a composed result built only from results that carry no lane data."
+    }
+  ]
+}
