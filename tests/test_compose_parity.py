@@ -22,6 +22,7 @@ Run:  python3 -m unittest discover -s tests -v
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -92,9 +93,12 @@ class ParityTests(unittest.TestCase):
                 got = _run_python(FIXTURES / case / "results", strategy)
                 self.assertEqual(got, (outcome, rc))
 
+    # On Windows, `bash` resolves to the WSL launcher stub, which is not
+    # a usable POSIX bash for this composer; the bash leg is exercised on
+    # POSIX hosts (and in the dedicated Test Bash CI jobs).
     @unittest.skipUnless(
-        shutil.which("bash") and shutil.which("jq"),
-        "bash + jq required for the bash composer")
+        os.name != "nt" and shutil.which("bash") and shutil.which("jq"),
+        "POSIX bash + jq required for the bash composer")
     def test_bash_parity(self):
         for case, strategy, outcome, rc in CASES:
             with self.subTest(impl="bash", case=case, strategy=strategy):
@@ -112,8 +116,8 @@ class ParityTests(unittest.TestCase):
                 self.assertEqual(got, (outcome, rc))
 
     def test_python_and_bash_agree_with_each_other(self):
-        if not (shutil.which("bash") and shutil.which("jq")):
-            self.skipTest("bash + jq required")
+        if os.name == "nt" or not (shutil.which("bash") and shutil.which("jq")):
+            self.skipTest("POSIX bash + jq required")
         for case, strategy, _, _ in CASES:
             with self.subTest(case=case, strategy=strategy):
                 directory = FIXTURES / case / "results"
