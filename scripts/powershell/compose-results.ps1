@@ -196,7 +196,7 @@ function Resolve-Outcome([string[]]$Outcomes, [string]$Strat) {
 $timestamp = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
 
 if (-not (Test-Path $ResultsDir -PathType Container)) {
-    Write-Warning "Error: no evaluator results found for phase '$Phase' in $ResultsDir (directory missing); composing a fail-closed block result."
+    [Console]::Error.WriteLine("Error: no evaluator results found for phase '$Phase' in $ResultsDir (directory missing); composing a fail-closed block result.")
     Emit-Composed (New-NoResultsComposed "Results directory not found: $ResultsDir.")
 }
 
@@ -206,7 +206,7 @@ $resultFiles = @(Get-ChildItem -Path $ResultsDir -Filter "*-$Phase-*.json" |
     Sort-Object Name)
 
 if ($resultFiles.Count -eq 0) {
-    Write-Warning "Error: no evaluator results found for phase '$Phase' in $ResultsDir; composing a fail-closed block result."
+    [Console]::Error.WriteLine("Error: no evaluator results found for phase '$Phase' in $ResultsDir; composing a fail-closed block result.")
     Emit-Composed (New-NoResultsComposed "The results directory contains no result files for this phase.")
 }
 
@@ -229,7 +229,7 @@ foreach ($file in $resultFiles) {
     }
     if ($null -ne $problem) {
         $invalid += @{ file = $file.Name; problem = $problem }
-        Write-Warning "Error: invalid evaluator result '$($file.Name)': $problem"
+        [Console]::Error.WriteLine("Error: invalid evaluator result '$($file.Name)': $problem")
         continue
     }
     $identity = "$($data.evaluator.id)@$($data.evaluator.version)"
