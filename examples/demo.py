@@ -65,6 +65,11 @@ def make_result(evaluator_id: str, version: str, outcome: str, phase: str,
 
 
 def main() -> None:
+    # The report prints block-bar characters; on Windows the default
+    # stdout encoding (cp1252) cannot encode them, so force UTF-8 with
+    # a safe fallback instead of crashing mid-report.
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     parser = argparse.ArgumentParser(description="Evaluator Contract Quick-Start Demo")
     parser.add_argument("--output", type=Path, default=None,
                         help="Directory to write result files (default: temp dir)")
