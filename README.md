@@ -103,6 +103,51 @@ The full JSON Schema is at `schemas/evaluator-result.schema.json`. Every evaluat
 | `contradicted` | Conflicts with other observed evidence |
 | `unsupported` | No evidence found to support or refute |
 
+## Reference Evaluator: `spec-structure`
+
+The extension ships one deterministic reference evaluator (Spec 002 FR-7), registered in [`evaluators.yml`](evaluators.yml) — a stock install is no longer a contract without a tenant. It checks a feature directory for the contract's basics:
+
+- `spec.md` / `plan.md` / `tasks.md` presence, and required spec sections (title, requirements, acceptance/success criteria)
+- `claims.json` presence and strict-load validity (structural mirror of the AEE engine's strict loader: known fields only, non-empty `id`/`text`, valid enums, list-typed fields, no duplicate ids or JSON keys)
+- every claim carries at least one falsification test
+- `assessment.json` presence
+- task ↔ requirement traceability (every task line references a requirement; every requirement in `spec.md` is referenced from `tasks.md`)
+
+It is deliberately small and deterministic — no model calls; the same feature directory produces a byte-identical result modulo `metadata.timestamp`. Judging epistemics remains AEE's role; this evaluator proves the contract composes.
+
+### Walkthrough (discovery → run → compose)
+
+From a clean checkout, with nothing registered by hand:
+
+```bash
+# 1. Discover: evaluators.yml registers the evaluator and its script
+grep -A3 'id: spec-structure' evaluators.yml
+
+# 2. Run it against the passing fixture
+mkdir -p /tmp/evaluator-results
+python3 scripts/python/spec_structure_evaluator.py \
+  --feature-dir examples/fixtures/spec-structure/passing \
+  --phase after_specify \
+  --output /tmp/evaluator-results/spec-structure-after_specify-20260101T000000Z.json
+
+# 3. Validate the emitted result against the contract schema
+python3 -c "
+import json, jsonschema
+schema = json.load(open('schemas/evaluator-result.schema.json'))
+result = json.load(open('/tmp/evaluator-results/spec-structure-after_specify-20260101T000000Z.json'))
+jsonschema.validate(result, schema)
+print('emitted result is schema-valid; outcome:', result['outcome'])
+"
+
+# 4. Compose (the run command's results-directory flow)
+python3 scripts/python/compose_results.py \
+  --results-dir /tmp/evaluator-results --phase after_specify --strategy strict --json
+```
+
+Expected: the emitted result has `outcome: "pass"` and the composed result has `outcome: "pass"` with `evaluator_count: 1`. Repeat with `examples/fixtures/spec-structure/failing` (missing `plan.md` and `assessment.json`, a claim with no falsification test, a strict-load-invalid claim, uncovered requirements) — the emitted and composed outcomes are `block`, and every defect is named in the findings.
+
+The walkthrough is exercised by `tests/test_spec_structure_evaluator.py` (`python3 -m unittest discover -s tests`).
+
 ## Composition Strategies
 
 When multiple evaluators run at the same phase, their results are composed:
@@ -161,17 +206,28 @@ See `templates/evaluator-result-template.json` for a starting point.
 ## File Structure
 
 ```
-.specify/extensions/evaluator/
+spec-kit-evaluator/
+├── evaluators.yml                      # Registered evaluators (spec-structure)
 ├── schemas/
 │   └── evaluator-result.schema.json   # JSON Schema for evaluator results
 ├── templates/
 │   └── evaluator-result-template.json # Template for new evaluator results
+├── scripts/
+│   ├── python/spec_structure_evaluator.py  # Reference evaluator (FR-7)
+│   ├── python/compose_results.py      # Composition (Python)
+│   ├── bash/compose-results.sh        # Composition (Bash)
+│   └── powershell/compose-results.ps1 # Composition (PowerShell)
+├── examples/
+│   ├── demo.py                        # Quick-start demo
+│   └── fixtures/spec-structure/       # Passing + failing fixture specs
+└── tests/                             # unittest suite (python3 -m unittest discover -s tests)
+
+Installed into a project (.specify/extensions/evaluator/):
 ├── results/                            # Individual evaluator result files
 │   ├── <evaluator-id>-<phase>-<ts>.json
 │   └── composed-<phase>-<ts>.json
-├── reports/                            # Human-readable reports (markdown format)
-│   └── report-<phase>-<ts>.md
-└── evaluators.yml                      # Registered evaluator configuration
+└── reports/                            # Human-readable reports (markdown format)
+    └── report-<phase>-<ts>.md
 ```
 
 ## License

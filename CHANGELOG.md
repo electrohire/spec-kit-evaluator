@@ -4,6 +4,11 @@ All notable changes to the Evaluator Contract extension will be documented in th
 
 ## [Unreleased]
 
+### Added
+- Deterministic spec-structure reference evaluator (`scripts/python/spec_structure_evaluator.py`, Spec 002 FR-7): checks spec/plan/tasks presence, required spec sections, claims bundle presence + strict-load validity, falsifiers, assessment presence, and task↔requirement traceability; emits schema-valid evaluator results
+- `evaluators.yml` registering the reference evaluator for discovery
+- Passing and failing fixture specs under `examples/fixtures/spec-structure/` and a README walkthrough (discovery → run → validate → compose), exercised by `tests/test_spec_structure_evaluator.py`
+
 ### Changed
 - Composition fails closed in all three composers (Spec 003 FR-6): empty or all-invalid composition yields `block` + exit 2 with an explicit no-results error, never `pass`; command documents amended from pass-on-empty
 - Python composer always schema-validates inputs (`jsonschema` is now a declared dependency in `requirements.txt`; its absence is a hard error) and self-validates composed output; invalid, malformed, or phase-mismatched inputs are wrapped as blocking findings instead of skipped or crashing

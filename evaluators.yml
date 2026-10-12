@@ -1,0 +1,33 @@
+# Registered evaluators for the Evaluator Contract extension.
+#
+# Discovery (see commands/speckit.evaluator.run.md step 2) reads this
+# file from .specify/extensions/evaluator/evaluators.yml in an installed
+# project. Each entry registers one evaluator that produces results
+# conforming to schemas/evaluator-result.schema.json.
+#
+# Fields:
+#   id        Unique evaluator identifier (used in result filenames).
+#   version   Semver of the evaluator implementation.
+#   type      "deterministic" (no model calls) or "model".
+#   script    Path of the executable, relative to the extension root.
+#   priority  Lower runs first (default 10).
+#   phases    Lifecycle phases the evaluator runs at.
+
+evaluators:
+  - id: spec-structure
+    version: 1.0.0
+    name: Spec Structure (reference evaluator)
+    type: deterministic
+    script: scripts/python/spec_structure_evaluator.py
+    priority: 10
+    phases:
+      - after_specify
+      - after_plan
+      - after_tasks
+    description: >-
+      Deterministic reference evaluator (Spec 002 FR-7): checks a feature
+      directory for spec/plan/tasks presence, required spec sections, a
+      present and strict-load-valid claims bundle whose claims carry
+      falsification tests, assessment presence, and task-to-requirement
+      traceability. Proves the contract end-to-end; does not judge
+      epistemics (that remains AEE's role).

@@ -33,6 +33,11 @@ provides:
     file: templates/evaluator-result-template.json
     description: Template for a single evaluator result
   scripts:
+  - name: spec-structure-evaluator
+    file: scripts/python/spec_structure_evaluator.py
+    description: Deterministic reference evaluator - checks spec structure and emits a contract result (registered in evaluators.yml)
+    runtimes:
+    - python
   - name: evaluator-compose
     file: scripts/python/compose_results.py
     description: Compose multiple evaluator results with deterministic precedence
