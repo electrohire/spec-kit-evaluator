@@ -27,8 +27,8 @@ The user input specifies **which results to compose**. Accept:
 ## Prerequisites
 
 - **Path safety (do this before any read or write)**: resolve the project root and the real, symlink-resolved path of `.specify/extensions/evaluator/results/` and every result file you touch. **Refuse and report — never follow —** if any path component is a symlink, or if the resolved path does not remain inside the project root.
-- At least one result file MUST exist for the specified phase. If none exist, produce a composed result with `outcome: "pass"` and a note that no evaluators ran.
-- Each result file MUST be valid JSON conforming to the evaluator result schema. Skip and report invalid files; do not compose invalid data.
+- At least one *valid* result file MUST exist for the specified phase. **Composition fails closed** (Spec 003 FR-6.1): if none exist — missing directory, zero files for the phase, or zero valid files — the composed result has `outcome: "block"` with an explicit `composed:NO-RESULTS` finding, and compose exits non-zero. Absence of evidence is never a pass.
+- Each result file MUST be valid JSON conforming to the evaluator result schema. Invalid files are **not skipped**: each is wrapped as a blocking `schema_violation` finding (per `speckit.evaluator.run.md` step 3.4) and counts as a `block` vote under every strategy. Report each invalid file by name.
 
 ## Execution
 
@@ -47,9 +47,12 @@ Read all result files for the specified phase from `.specify/extensions/evaluato
 ### 2. Validate Each Result
 
 For each result file:
-1. Parse as JSON.
-2. Validate against `.specify/extensions/evaluator/schemas/evaluator-result.schema.json`.
-3. Skip invalid results and report them.
+1. Parse as JSON. Malformed JSON is a named error for that file, never a crash.
+2. Validate against `.specify/extensions/evaluator/schemas/evaluator-result.schema.json`. The Python composer always applies the full schema (`jsonschema` is a declared dependency; its absence is a hard error, never a silent skip). The Bash and PowerShell composers enforce the same minimum contract: required keys, outcome/severity/kind enums, evaluator `id` + `version`, and findings shape.
+3. The payload's `phase` MUST equal the requested phase; a mismatch invalidates the result.
+4. Wrap each invalid result as a blocking finding and report it by name — never skip it toward pass.
+
+Evaluator identity for deduplication and counting is the payload `evaluator.id` + `version`, never the filename. Duplicates of one evaluator count once under every strategy (the latest timestamped filename wins, deterministically).
 
 ### 3. Apply Composition Strategy
 
@@ -72,15 +75,16 @@ The outcome with the most evaluators supporting it wins. Ties break toward the m
 
 The least severe outcome wins. Use only when evaluators are advisory and blocking is explicitly not desired.
 
+**Non-gating strategies.** Results composed under `majority` or `optimistic` are advisory: the composed result is marked `metadata.gating: false` with a `metadata.non_gating_reason`. When such a composition overturns a `block`, the metadata additionally records `metadata.block_overridden: true`, and every input's outcome remains visible in `metadata.evaluator_results` — an overturned block is evidence on record, never silently erased. Only `strict` compositions may be used as a release gate.
+
 ### 4. Merge Findings
 
-All findings from all evaluators are preserved in the composed result. Each finding retains its original `id`, `evaluator` origin, and all fields. Findings are ordered by:
+All findings from all evaluators are preserved in the composed result. Each finding's `id` is namespaced by its evaluator — `<evaluator.id>:<finding.id>` — so finding ids cannot collide across evaluators, and the origin is visible in the id itself (no out-of-schema marker fields are added; the composed output must validate against the result schema). Findings are ordered by:
 
 1. Severity (critical → high → medium → low → info)
-2. Evaluator priority (lower first)
-3. Original finding order within each evaluator
+2. Finding id (namespaced, so this is evaluator id, then the finding's own id)
 
-Contradictory findings are **preserved, not collapsed**. If evaluator A says "REQ-014 is supported" and evaluator B says "REQ-014 is unsupported", both findings appear in the composed result with their respective evidence.
+> **Decision (Spec 003 T610):** an earlier draft of this section promised ordering by *evaluator priority*. No shipped composer implements a priority concept and evaluators do not declare a composition priority in their results, so the promise is removed rather than left as drift. Run order priority (in `speckit.evaluator.run`) is unaffected.
 
 ### 5. Determine Next Action
 
@@ -113,47 +117,66 @@ Output a summary:
 
 ## Composition Rules
 
-1. **Deterministic**: same inputs + same strategy = same composed result.
-2. **Contradiction-preserving**: conflicting findings are both recorded, not resolved.
-3. **Evidence-respecting**: `observed` evidence from one evaluator is not downgraded by another evaluator's `asserted` claim.
-4. **State-isolated**: each evaluator's `state` object is preserved under its evaluator ID in the composed result's `evaluator_states` map.
-5. **Priority-ordered**: when evaluators declare a `priority` (in their config), lower values run first and their findings appear first at equal severity.
+1. **Deterministic**: same inputs + same strategy = same composed result (modulo `metadata.timestamp`).
+2. **Fail-closed**: absence or invalidity of evidence composes to `block`, never to `pass`.
+3. **Contradiction-preserving**: conflicting findings are both recorded, not resolved.
+4. **Evidence-respecting**: `observed` evidence from one evaluator is not downgraded by another evaluator's `asserted` claim.
+5. **State-isolated**: each evaluator's `state` object is preserved under its evaluator ID in the composed result's `state` map.
+
+## Exit Codes
+
+Compose is a gate, and its exit code is part of the contract (all three implementations; mirroring the `gate` format in `speckit.evaluator.report.md`):
+
+| Exit code | Composed outcome |
+|-----------|------------------|
+| 0 | `pass` or `warn` |
+| 1 | `iterate`, `clarify`, or `gather_evidence` |
+| 2 | `block` — including fail-closed no-results and invalid-input blocks — or a hard error (missing schema, missing `jsonschema`, bad arguments) |
+
+Hard errors print a named error to stderr and produce no composed result. Invalid *input files* are not hard errors: they are wrapped as blocking findings (step 2) and compose normally to the exit code above.
 
 ## Composed Result Format
+
+The composed result is a standard evaluator result (it validates against `evaluator-result.schema.json`), with composition detail carried in `metadata`:
 
 ```json
 {
   "schema_version": "1.0",
-  "composed": true,
+  "evaluator": { "id": "composed", "version": "1.0", "name": "Composed (strict)" },
   "phase": "after_plan",
-  "composition_strategy": "strict",
-  "composed_outcome": "iterate",
-  "composed_summary": "2 evaluators ran: 1 pass, 1 iterate. 3 findings total.",
-  "evaluator_results": [
-    { "evaluator_id": "schema-validate", "outcome": "pass", "findings_count": 0 },
-    { "evaluator_id": "epistemic", "outcome": "iterate", "findings_count": 3 }
-  ],
+  "outcome": "iterate",
+  "summary": "2 evaluator(s) ran. Outcomes: schema-validate=pass, epistemic=iterate. 3 finding(s) total.",
   "findings": [
-    "... all findings from all evaluators, ordered by severity ..."
+    "... all findings, ids namespaced as <evaluator.id>:<finding.id>, ordered by severity then id ..."
   ],
   "next_action": {
     "kind": "iterate",
     "target_phase": "plan",
-    "message": "2 of 2 evaluators completed. 1 requests iteration. See findings for details."
-  },
-  "evaluator_states": {
-    "schema-validate": {},
-    "epistemic": { "... opaque evaluator state ..." }
+    "message": "Composed outcome: iterate."
   },
   "metadata": {
     "timestamp": "<ISO-8601>",
     "evaluator_count": 2,
+    "composition_strategy": "strict",
+    "gating": true,
+    "evaluator_results": [
+      { "evaluator_id": "schema-validate", "outcome": "pass", "findings_count": 0 },
+      { "evaluator_id": "epistemic", "outcome": "iterate", "findings_count": 3 }
+    ],
+    "invalid_results": [],
+    "duplicate_results_ignored": [],
     "contradictory_findings": [
-      { "finding_a": "EPI-001", "finding_b": "SCH-003", "subject": "REQ-014" }
+      { "subject": "REQ-014", "finding_ids": ["epistemic:EPI-001", "schema-validate:SCH-003"], "description": "Conflicting findings on subject 'REQ-014'" }
     ]
+  },
+  "state": {
+    "schema-validate": {},
+    "epistemic": { "... opaque evaluator state ..." }
   }
 }
 ```
+
+Composition metadata fields: `gating` (false under `majority`/`optimistic`), `non_gating_reason` (when non-gating), `block_overridden` (when a non-gating strategy overturned a block), `invalid_results` (each invalid file with its named reason), `duplicate_results_ignored` (filenames dropped by identity dedup), and `no_results` (on the fail-closed empty composition).
 
 ## Guardrails
 
