@@ -470,6 +470,43 @@ def _no_results_composed(
     )
 
 
+def _lane_lag_summary(lane_states: list[dict[str, Any]]) -> str:
+    """One headline sentence naming lane-2 lag, or "" when no
+    carried lane state lags (Spec 004 P5-V2).
+
+    Lag signals, all read from the carried records: claims below
+    the explained stage, verified-but-unexplained claims, capped or
+    attribution-contested counts where the record carries them,
+    and residual `not_understood` entries. Counts are reported as
+    the records state them; nothing is scored or combined.
+    """
+    parts: list[str] = []
+    for state in lane_states:
+        lane_2 = state.get("lane_2")
+        bundle = lane_2.get("bundle") if isinstance(lane_2, dict) else None
+        if not isinstance(bundle, dict):
+            bundle = lane_2 if isinstance(lane_2, dict) else {}
+        signals: list[str] = []
+        below = bundle.get("below_explained")
+        if isinstance(below, int) and below:
+            signals.append(f"{below} claim(s) below the explained stage")
+        unexplained = bundle.get("verified_unexplained")
+        if isinstance(unexplained, int) and unexplained:
+            signals.append(f"{unexplained} verified-but-unexplained claim(s)")
+        unknowns = state.get("not_understood") or []
+        if unknowns:
+            signals.append(f"{len(unknowns)} residual unknown(s) not understood")
+        if signals:
+            parts.append(f"{state['evaluator_id']}: " + ", ".join(signals))
+    if not parts:
+        return ""
+    return (
+        "Lane 2 (human acceptance) lags lane 1 (machine verification) — "
+        + "; ".join(parts)
+        + ". A composed outcome is a checking-stage decision, not acceptance or digestion."
+    )
+
+
 def compose_results(
     results_dir: Path,
     phase: str,
@@ -558,6 +595,30 @@ def compose_results(
     contradictions = _detect_contradictions(all_findings)
     model_routing = _merge_model_routing(results)
 
+    # -- Lane states (Spec 004 P5-V1/V2): an input result may carry
+    #    the AEE lane pair in metadata.lanes (lane 1 machine
+    #    verification, lane 2 human acceptance). Composition carries
+    #    each pair through VERBATIM, per evaluator — the lanes are
+    #    never merged, averaged, or reduced to a single figure
+    #    (lane 2 contains no score, and none is invented here).
+    lane_states: list[dict[str, Any]] = []
+    for r in results:
+        metadata = r.get("metadata")
+        if not isinstance(metadata, dict):
+            continue
+        lanes = metadata.get("lanes")
+        if not isinstance(lanes, dict):
+            continue
+        lane_states.append(
+            {
+                "evaluator_id": r["evaluator"]["id"],
+                "lane_1": lanes.get("lane_1"),
+                "lane_2": lanes.get("lane_2"),
+                "not_understood": metadata.get("not_understood") or [],
+            }
+        )
+    lane_lag = _lane_lag_summary(lane_states)
+
     evaluator_states: dict[str, Any] = {}
     for r in results:
         if "state" in r:
@@ -594,6 +655,11 @@ def compose_results(
         )
     if not gating:
         summary += f" Strategy '{strategy}' is non-gating (advisory)."
+    if lane_lag:
+        # P5-V2: lag is stated in the headline itself, pass or not —
+        # a lane-1-green composed outcome must never read as
+        # settled, accepted, or digested work.
+        summary += f" {lane_lag}"
 
     metadata_extra: dict[str, Any] = {
         "evaluator_count": len(results),
@@ -605,6 +671,8 @@ def compose_results(
         "duplicate_results_ignored": duplicates,
         "gating": gating,
     }
+    if lane_states:
+        metadata_extra["lane_states"] = lane_states
     if not gating:
         metadata_extra["non_gating_reason"] = (
             f"Strategy '{strategy}' composes advisory outcomes; the result "
