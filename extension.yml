@@ -2,7 +2,7 @@ schema_version: '1.0'
 extension:
   id: evaluator
   name: Evaluator Contract
-  version: 1.0.0
+  version: 1.1.0
   description: Provider-neutral evaluator result contract for evidence, provenance, uncertainty, and recovery between SDD
     phases
   category: process
