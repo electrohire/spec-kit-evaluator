@@ -1,0 +1,1 @@
+{"evaluator":{"id":"gamma","version":"1.0.0"},"findings":[],"outcome":"pass","phase":"after_plan","schema_version":"1.0","summary":"Filename claims after_specify, but the payload phase is after_plan (RT4-H1)."}
