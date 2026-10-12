@@ -155,7 +155,8 @@ class WalkthroughTests(unittest.TestCase):
         return {"id": "spec-structure",
                 "script": "scripts/python/spec_structure_evaluator.py"}
 
-    def _run_and_compose(self, fixture: str, phase: str) -> tuple[dict, dict]:
+    def _run_and_compose(self, fixture: str, phase: str,
+                         expected_compose_rc: int = 0) -> tuple[dict, dict]:
         entry = self._discover()
         script = REPO_ROOT / entry["script"]
         with tempfile.TemporaryDirectory() as tmp:
@@ -179,7 +180,7 @@ class WalkthroughTests(unittest.TestCase):
                  "--results-dir", str(results_dir),
                  "--phase", phase, "--strategy", "strict", "--json"],
                 capture_output=True, text=True, timeout=60)
-            self.assertEqual(comp.returncode, 0, comp.stderr)
+            self.assertEqual(comp.returncode, expected_compose_rc, comp.stderr)
             composed = json.loads(comp.stdout)
             return emitted, composed
 
@@ -190,7 +191,9 @@ class WalkthroughTests(unittest.TestCase):
         self.assertEqual(composed["metadata"]["evaluator_count"], 1)
 
     def test_walkthrough_failing_fixture(self):
-        emitted, composed = self._run_and_compose("failing", "after_specify")
+        # FR-6 gate contract: a block composition exits 2, not 0.
+        emitted, composed = self._run_and_compose(
+            "failing", "after_specify", expected_compose_rc=2)
         self.assertEqual(emitted["outcome"], "block")
         self.assertEqual(composed["outcome"], "block")
         self.assertGreater(len(composed["findings"]), 0)

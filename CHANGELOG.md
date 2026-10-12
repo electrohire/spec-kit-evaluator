@@ -9,6 +9,13 @@ All notable changes to the Evaluator Contract extension will be documented in th
 - `evaluators.yml` registering the reference evaluator for discovery
 - Passing and failing fixture specs under `examples/fixtures/spec-structure/` and a README walkthrough (discovery → run → validate → compose), exercised by `tests/test_spec_structure_evaluator.py`
 
+### Changed
+- Composition fails closed in all three composers (Spec 003 FR-6): empty or all-invalid composition yields `block` + exit 2 with an explicit no-results error, never `pass`; command documents amended from pass-on-empty
+- Python composer always schema-validates inputs (`jsonschema` is now a declared dependency in `requirements.txt`; its absence is a hard error) and self-validates composed output; invalid, malformed, or phase-mismatched inputs are wrapped as blocking findings instead of skipped or crashing
+- Composed output is schema-valid: finding ids namespaced per evaluator (no `_evaluator_id` injection), `model_routing` omitted rather than `null`, summary capped at 500 chars, merged routing taken consistently from the winning routing
+- Dedup/counting use payload `evaluator.id` + `version` (duplicates count once); `majority`/`optimistic` results are marked non-gating in metadata with `block_overridden` recorded; compose exit codes follow the gate contract (0 pass/warn, 1 iterate/clarify/gather_evidence, 2 block/error)
+- `examples/demo.py` fixed to the current compose output shape and covered by tests
+
 ## [1.0.0] - 2026-09-01
 
 ### Added

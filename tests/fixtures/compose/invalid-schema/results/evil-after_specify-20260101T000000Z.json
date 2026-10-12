@@ -1,0 +1,1 @@
+{"bogus_extra_property":true,"evaluator":{"id":"evil"},"findings":[{"extra":1,"id":"EV-1","kind":"not_a_kind","severity":"catastrophic","subject":"spec.md"}],"outcome":"pass","phase":"after_specify","schema_version":"1.0","summary":"Hostile fixture: missing evaluator.version, unknown severity and kind, extra properties (RT4-C2)."}

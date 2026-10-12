@@ -65,6 +65,11 @@ def make_result(evaluator_id: str, version: str, outcome: str, phase: str,
 
 
 def main() -> None:
+    # The report prints block-bar characters; on Windows the default
+    # stdout encoding (cp1252) cannot encode them, so force UTF-8 with
+    # a safe fallback instead of crashing mid-report.
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     parser = argparse.ArgumentParser(description="Evaluator Contract Quick-Start Demo")
     parser.add_argument("--output", type=Path, default=None,
                         help="Directory to write result files (default: temp dir)")
@@ -256,7 +261,7 @@ def main() -> None:
     print(S)
     print("  COMPOSED RESULT (strict strategy)")
     print(S)
-    print(f"  Outcome:          {composed['composed_outcome'].upper()}")
+    print(f"  Outcome:          {composed["outcome"].upper()}")
     print(f"  Evaluators:       {composed['metadata']['evaluator_count']} run")
     print(f"  Total Findings:   {len(composed['findings'])}")
     print(f"  Contradictions:   {len(composed['metadata']['contradictory_findings'])}")
@@ -301,7 +306,7 @@ def main() -> None:
     # Terminal
     print(f"\n  ── TERMINAL ──")
     lines = []
-    lines.append(f"  Outcome: {composed['composed_outcome'].upper()}")
+    lines.append(f"  Outcome: {composed["outcome"].upper()}")
     lines.append(f"  Findings: {len(composed['findings'])} total")
     for f in composed["findings"]:
         lines.append(f"  [{f['severity'].upper():>8s}] {f['id']} — {f['kind']}: {f['description'][:60]}")
@@ -325,9 +330,9 @@ def main() -> None:
     # Gate
     print(f"\n  ── GATE ──")
     gate_codes = {"pass": 0, "warn": 0, "iterate": 1, "clarify": 1, "gather_evidence": 1, "block": 2}
-    exit_code = gate_codes.get(composed["composed_outcome"], 1)
+    exit_code = gate_codes.get(composed["outcome"], 1)
     print(f"  Exit Code: {exit_code} ({'PASS' if exit_code == 0 else 'BLOCK' if exit_code == 2 else 'WARN'})")
-    print(f"  Outcome: {composed['composed_outcome']}")
+    print(f"  Outcome: {composed["outcome"]}")
 
     # JSON
     print(f"\n  ── JSON (first 3 keys) ──")

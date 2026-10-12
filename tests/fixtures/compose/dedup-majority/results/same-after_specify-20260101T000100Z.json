@@ -1,0 +1,1 @@
+{"evaluator":{"id":"same","version":"1.0.0"},"findings":[],"outcome":"pass","phase":"after_specify","schema_version":"1.0","summary":"Same evaluator (same id+version), later run; only this one may count."}

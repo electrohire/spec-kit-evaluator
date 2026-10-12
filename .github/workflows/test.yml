@@ -72,6 +72,12 @@ jobs:
         with:
           python-version: "3.13"
 
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt pyyaml
+
+      - name: Run unit + parity tests
+        run: python3 -m unittest discover -s tests -v
+
       - name: Run compose_results.py --help
         run: python3 scripts/python/compose_results.py --help
 
@@ -121,10 +127,16 @@ jobs:
           echo "=== Optimistic ==="
           python3 scripts/python/compose_results.py --results-dir "$RESULTS_DIR" --phase after_plan --strategy optimistic --json | python3 -c "import sys,json; d=json.load(sys.stdin); assert d['outcome']=='pass', f'Expected pass, got {d[\"outcome\"]}'; print(f'PASS: optimistic={d[\"outcome\"]}')"
 
-          echo "=== Empty dir ==="
+          echo "=== Empty dir (fail-closed, Spec 003 FR-6.1) ==="
           EMPTY_DIR="${{ runner.temp }}/empty-results"
           mkdir -p "$EMPTY_DIR"
-          python3 scripts/python/compose_results.py --results-dir "$EMPTY_DIR" --phase after_plan --json | python3 -c "import sys,json; d=json.load(sys.stdin); assert d['outcome']=='pass', f'Expected pass, got {d[\"outcome\"]}'; print(f'PASS: empty={d[\"outcome\"]}')"
+          set +e
+          EMPTY_COMPOSED="${{ runner.temp }}/empty-composed.json"
+          python3 scripts/python/compose_results.py --results-dir "$EMPTY_DIR" --phase after_plan --json > "$EMPTY_COMPOSED"
+          rc=$?
+          set -e
+          test "$rc" -eq 2
+          EMPTY_COMPOSED="$EMPTY_COMPOSED" python3 -c "import json, os; d=json.load(open(os.environ['EMPTY_COMPOSED'])); assert d['outcome']=='block', f'Expected block, got {d[\"outcome\"]}'; print('PASS: empty=block, exit 2')"
 
   test-bash:
     name: Test Bash (${{ matrix.os }})
@@ -191,10 +203,16 @@ jobs:
           echo "=== Optimistic ==="
           bash scripts/bash/compose-results.sh --results-dir "$RESULTS_DIR" --phase after_plan --strategy optimistic | python3 -c "import sys,json; d=json.load(sys.stdin); assert d['outcome']=='pass', f'Expected pass, got {d[\"outcome\"]}'; print(f'PASS: optimistic={d[\"outcome\"]}')"
 
-          echo "=== Empty dir ==="
+          echo "=== Empty dir (fail-closed, Spec 003 FR-6.1) ==="
           EMPTY_DIR="${{ runner.temp }}/empty-results"
           mkdir -p "$EMPTY_DIR"
-          bash scripts/bash/compose-results.sh --results-dir "$EMPTY_DIR" --phase after_plan | python3 -c "import sys,json; d=json.load(sys.stdin); assert d['outcome']=='pass', f'Expected pass, got {d[\"outcome\"]}'; print(f'PASS: empty={d[\"outcome\"]}')"
+          set +e
+          EMPTY_COMPOSED="${{ runner.temp }}/empty-composed.json"
+          bash scripts/bash/compose-results.sh --results-dir "$EMPTY_DIR" --phase after_plan > "$EMPTY_COMPOSED"
+          rc=$?
+          set -e
+          test "$rc" -eq 2
+          EMPTY_COMPOSED="$EMPTY_COMPOSED" python3 -c "import json, os; d=json.load(open(os.environ['EMPTY_COMPOSED'])); assert d['outcome']=='block', f'Expected block, got {d[\"outcome\"]}'; print('PASS: empty=block, exit 2')"
 
   test-powershell:
     name: Test PowerShell (${{ matrix.os }})
@@ -244,24 +262,35 @@ jobs:
           }
           '@ | Out-File -Encoding utf8 (Join-Path $ResultsDir "schema-validate-after_plan-20260902T140100Z.json")
 
+          # The composer exits with a gate code, so each invocation runs
+          # as a child pwsh process and its exit code is asserted too.
           Write-Host "=== Strict ==="
-          $result = & .\scripts\powershell\compose-results.ps1 -ResultsDir $ResultsDir -Phase after_plan -Strategy strict | ConvertFrom-Json
+          $result = pwsh -NoProfile -File .\scripts\powershell\compose-results.ps1 -ResultsDir $ResultsDir -Phase after_plan -Strategy strict | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0) { throw "Expected exit 0, got $LASTEXITCODE" }
           if ($result.outcome -ne 'warn') { throw "Expected warn, got $($result.outcome)" }
           Write-Host "PASS: strict=$($result.outcome)"
 
           Write-Host "=== Majority ==="
-          $result = & .\scripts\powershell\compose-results.ps1 -ResultsDir $ResultsDir -Phase after_plan -Strategy majority | ConvertFrom-Json
+          $result = pwsh -NoProfile -File .\scripts\powershell\compose-results.ps1 -ResultsDir $ResultsDir -Phase after_plan -Strategy majority | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0) { throw "Expected exit 0, got $LASTEXITCODE" }
           if ($result.outcome -ne 'warn') { throw "Expected warn, got $($result.outcome)" }
           Write-Host "PASS: majority=$($result.outcome)"
 
           Write-Host "=== Optimistic ==="
-          $result = & .\scripts\powershell\compose-results.ps1 -ResultsDir $ResultsDir -Phase after_plan -Strategy optimistic | ConvertFrom-Json
+          $result = pwsh -NoProfile -File .\scripts\powershell\compose-results.ps1 -ResultsDir $ResultsDir -Phase after_plan -Strategy optimistic | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0) { throw "Expected exit 0, got $LASTEXITCODE" }
           if ($result.outcome -ne 'pass') { throw "Expected pass, got $($result.outcome)" }
           Write-Host "PASS: optimistic=$($result.outcome)"
 
-          Write-Host "=== Empty dir ==="
+          Write-Host "=== Empty dir (fail-closed, Spec 003 FR-6.1) ==="
           $EmptyDir = Join-Path $env:RUNNER_TEMP "empty-results"
           New-Item -ItemType Directory -Force -Path $EmptyDir | Out-Null
-          $result = & .\scripts\powershell\compose-results.ps1 -ResultsDir $EmptyDir -Phase after_plan | ConvertFrom-Json
-          if ($result.outcome -ne 'pass') { throw "Expected pass, got $($result.outcome)" }
-          Write-Host "PASS: empty=$($result.outcome)"
+          $result = pwsh -NoProfile -File .\scripts\powershell\compose-results.ps1 -ResultsDir $EmptyDir -Phase after_plan | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 2) { throw "Expected exit 2 for empty composition, got $LASTEXITCODE" }
+          if ($result.outcome -ne 'block') { throw "Expected block, got $($result.outcome)" }
+          Write-Host "PASS: empty=block, exit 2"
+          # The step's last native invocation is the empty composition,
+          # whose exit code is 2 BY DESIGN (gate code). End explicitly so
+          # the step's exit code reflects the assertions above; any throw
+          # above still fails the step before this line is reached.
+          exit 0
