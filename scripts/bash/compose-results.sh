@@ -232,7 +232,7 @@ def resolve_outcome(outcomes; strategy):
         (precedence | reverse | map(select(in_list(outcomes))) | .[0] // "pass")
     elif strategy == "majority" then
         (outcomes | group_by(.) | map({ outcome: .[0], count: length,
-            sev: (precedence | index(.[0])) })
+            sev: (.[0] as $o | precedence | index($o)) })
           | sort_by([-.count, .sev]) | .[0].outcome // "pass")
     else
         (precedence | map(select(in_list(outcomes))) | .[0] // "pass")
