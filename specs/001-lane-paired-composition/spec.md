@@ -12,7 +12,7 @@ recorded as-is); outcome `gather_evidence` → `iterate`. Suite:
 31 passed + 1 skipped at baseline → 35 passed + 1 skipped (4 new
 lane tests). Not merged — the coordinator merges.
 
-**Input**: Spec 004 (Tao realignment) Phase P5, evaluator half:
+**Input**: Spec 004 (framework realignment) Phase P5, evaluator half:
 "the composition contract checked against lane-paired outcomes —
 a composed result must not re-blend the lanes into a single
 headline; any contract change is specced in that repo." The
