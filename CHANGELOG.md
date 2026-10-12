@@ -2,7 +2,7 @@
 
 All notable changes to the Evaluator Contract extension will be documented in this file.
 
-## [Unreleased]
+## [1.1.0] - 2026-10-12
 
 ### Added
 - Lane-paired composition (Spec 004 P5, `specs/001-lane-paired-composition`): when an input result carries the AEE lane pair in `metadata.lanes` (lane 1 machine verification / lane 2 human acceptance, emitted by the realigned engine's Evaluator Contract result), the Python composer carries it through verbatim per evaluator as `metadata.lane_states` — never merged, averaged, or scored — and the composed summary states lane-2 lag (claims below the explained stage, verified-but-unexplained claims, residual `not_understood` entries) whenever present, including on a `pass`, so a lane-1-green headline never reads as acceptance or digestion. Lane-less inputs compose exactly as before.
