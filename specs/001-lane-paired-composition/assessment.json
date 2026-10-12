@@ -1,0 +1,769 @@
+{
+  "schema_version": "1.0",
+  "methodology_version": "2.0",
+  "project": "project",
+  "phase": "after_specify",
+  "outcome": "gather_evidence",
+  "summary": "Assessed 4 claim(s); found 13 failure mode(s); 4 claim(s) below the 0.70 confidence threshold. Shared evidence: 1 supporting source(s) shared across 3 of 4 claim(s); the same evidence set supports multiple claims (FR-2.8, reporting only, no outcome effect in this phase). Stage cap: 4 claim(s) below stage 'explained'; the outcome cannot be 'pass' (Spec 004 R1.4). Stage caps applied: 4 claim(s) reported below their author-declared status or in qualified form (Spec 004 R1.3). Stage default: 4 claim(s) loaded without a stage defaulted to 'created' (lenient path, Spec 004 R1.1; recorded in metadata.stage_defaulted_claims). Policy verdicts: 0 accept, 0 challenge, 0 abstain. Unjudged (stage 'created'): 4. Not understood: 16 residual unknown(s) are recorded on this assessment (Spec 004 R5.2). Lane 1 (machine verification): outcome gather_evidence; 0 claim(s) at or above the 0.70 threshold, 4 below. Lane 2 (human acceptance): stages by effective stage: created 4. Lane-2 lag: 4 claim(s) below explained; 4 stage-capped.",
+  "created_at": "2026-10-12T18:03:17.043974Z",
+  "claims": [
+    {
+      "id": "EVAL-P5-01",
+      "text": "Composition carries lane state through: a result whose metadata carries the lane pair produces a composed result whose metadata.lane_states names that evaluator and its lane pair verbatim, one entry per lanes-carrying evaluator.",
+      "kind": "requirement",
+      "status": "supported",
+      "boundary": [
+        "scripts/python/compose_results.py composition output"
+      ],
+      "depends_on": [],
+      "conflicts_with": [],
+      "evidence": [
+        {
+          "ref": "scripts/python/compose_results.py",
+          "kind": "observed",
+          "direction": "supports",
+          "source_quality": "artifact",
+          "description": "Before: compose_results.py has no reference to lanes anywhere; input metadata is not inspected beyond model routing, so an AEE result's lane pair is dropped on the floor.",
+          "source_id": "p5-eval-before-inspection-2026-10-12",
+          "independent_of": [],
+          "observed_at": null,
+          "content_hash": null
+        }
+      ],
+      "assumptions": [],
+      "alternatives": [],
+      "falsification_tests": [
+        "Compose a result set containing an AEE result with metadata.lanes and find no lane_states in the composed metadata, or find the lane pair altered from the input."
+      ],
+      "uncertainty": "insufficient_evidence",
+      "severity": "medium",
+      "source_ref": "",
+      "domain": "",
+      "confidence": 0.6200000000000001,
+      "confidence_band": "medium",
+      "failures": [
+        {
+          "id": "AEE-EVAL-P5-01-IRREDUCIBILITY-CHALLENGE",
+          "claim_id": "EVAL-P5-01",
+          "challenge": "Irreducibility challenge",
+          "breakpoint": "Claim may contain multiple independently falsifiable propositions",
+          "severity": "medium",
+          "category": "coverage_gap",
+          "recovery_hint": "Split the claim into atomic propositions and link them explicitly.",
+          "resolved": false,
+          "disposition": null
+        },
+        {
+          "id": "AEE-EVAL-P5-01-NEGATION-CONFLICT-CHALLE",
+          "claim_id": "EVAL-P5-01",
+          "challenge": "Negation conflict challenge",
+          "breakpoint": "EVAL-P5-01 may contradict EVAL-P5-03",
+          "severity": "medium",
+          "category": "contradiction",
+          "recovery_hint": "Confirm whether the claims share a boundary and preserve both pending review.",
+          "resolved": false,
+          "disposition": null
+        },
+        {
+          "id": "AEE-EVAL-P5-01-INDEPENDENCE-UNMODELED",
+          "claim_id": "EVAL-P5-01",
+          "challenge": "Shared-evidence independence challenge",
+          "breakpoint": "Supporting evidence 'p5-eval-before-inspection-2026-10-12' (ref(s): scripts/python/compose_results.py, scripts/python/compose_results.py _resolve_outcome, scripts/python/compose_results.py summary string) is shared with claim(s) EVAL-P5-02, EVAL-P5-03 and no independence is declared for it; the same evidence may be counted as independent corroboration in each claim",
+          "severity": "medium",
+          "category": "independence_unmodeled",
+          "recovery_hint": "Declare independent_of between the evidence items, or record that the corroboration is shared.",
+          "resolved": false,
+          "disposition": null
+        },
+        {
+          "id": "AEE-EVAL-P5-01-STAGE-CAP",
+          "claim_id": "EVAL-P5-01",
+          "challenge": "Stage cap",
+          "breakpoint": "Stage cap (Spec 004 R1.3): claim at stage 'created' may not report status 'supported'; reported as 'draft' (policy verdict ceiling: unjudged); the cap lifts with a recorded checking event (an assessment run recorded as a stage event) (Spec 004 R1.3)",
+          "severity": "low",
+          "category": "stage_cap",
+          "recovery_hint": "Record the stage event that lifts the cap: a recorded checking event (an assessment run recorded as a stage event).",
+          "resolved": false,
+          "disposition": null
+        }
+      ],
+      "metadata": {},
+      "dispositions": [],
+      "stage": "created",
+      "stage_events": [],
+      "headline": false,
+      "role": null
+    },
+    {
+      "id": "EVAL-P5-02",
+      "text": "The composed summary states lane-2 lag whenever a carried lane state shows it - claims below the explained stage, verified-but-unexplained claims, or residual not_understood entries - including when the composed outcome is pass.",
+      "kind": "requirement",
+      "status": "supported",
+      "boundary": [
+        "scripts/python/compose_results.py summary construction"
+      ],
+      "depends_on": [
+        "EVAL-P5-01"
+      ],
+      "conflicts_with": [],
+      "evidence": [
+        {
+          "ref": "scripts/python/compose_results.py summary string",
+          "kind": "observed",
+          "direction": "supports",
+          "source_quality": "artifact",
+          "description": "Before: the composed summary reports evaluator outcomes and finding counts only; nothing in it can express that human acceptance lags machine verification.",
+          "source_id": "p5-eval-before-inspection-2026-10-12",
+          "independent_of": [],
+          "observed_at": null,
+          "content_hash": null
+        }
+      ],
+      "assumptions": [],
+      "alternatives": [],
+      "falsification_tests": [
+        "Compose a passing set whose AEE lane 2 shows claims below the explained stage and observe a composed summary that does not state the lag."
+      ],
+      "uncertainty": "insufficient_evidence",
+      "severity": "medium",
+      "source_ref": "",
+      "domain": "",
+      "confidence": 0.6200000000000001,
+      "confidence_band": "medium",
+      "failures": [
+        {
+          "id": "AEE-EVAL-P5-02-IRREDUCIBILITY-CHALLENGE",
+          "claim_id": "EVAL-P5-02",
+          "challenge": "Irreducibility challenge",
+          "breakpoint": "Claim may contain multiple independently falsifiable propositions",
+          "severity": "medium",
+          "category": "coverage_gap",
+          "recovery_hint": "Split the claim into atomic propositions and link them explicitly.",
+          "resolved": false,
+          "disposition": null
+        },
+        {
+          "id": "AEE-EVAL-P5-02-INDEPENDENCE-UNMODELED",
+          "claim_id": "EVAL-P5-02",
+          "challenge": "Shared-evidence independence challenge",
+          "breakpoint": "Supporting evidence 'p5-eval-before-inspection-2026-10-12' (ref(s): scripts/python/compose_results.py, scripts/python/compose_results.py _resolve_outcome, scripts/python/compose_results.py summary string) is shared with claim(s) EVAL-P5-01, EVAL-P5-03 and no independence is declared for it; the same evidence may be counted as independent corroboration in each claim",
+          "severity": "medium",
+          "category": "independence_unmodeled",
+          "recovery_hint": "Declare independent_of between the evidence items, or record that the corroboration is shared.",
+          "resolved": false,
+          "disposition": null
+        },
+        {
+          "id": "AEE-EVAL-P5-02-STAGE-CAP",
+          "claim_id": "EVAL-P5-02",
+          "challenge": "Stage cap",
+          "breakpoint": "Stage cap (Spec 004 R1.3): claim at stage 'created' may not report status 'supported'; reported as 'draft' (policy verdict ceiling: unjudged); the cap lifts with a recorded checking event (an assessment run recorded as a stage event) (Spec 004 R1.3)",
+          "severity": "low",
+          "category": "stage_cap",
+          "recovery_hint": "Record the stage event that lifts the cap: a recorded checking event (an assessment run recorded as a stage event).",
+          "resolved": false,
+          "disposition": null
+        }
+      ],
+      "metadata": {},
+      "dispositions": [],
+      "stage": "created",
+      "stage_events": [],
+      "headline": false,
+      "role": null
+    },
+    {
+      "id": "EVAL-P5-03",
+      "text": "Composition never re-blends the lanes: outcome resolution stays strategy precedence over outcome strings, and no composed output contains a score computed from lane-2 state or any blended lane figure.",
+      "kind": "requirement",
+      "status": "supported",
+      "boundary": [
+        "scripts/python/compose_results.py outcome resolution and output shape"
+      ],
+      "depends_on": [],
+      "conflicts_with": [],
+      "evidence": [
+        {
+          "ref": "scripts/python/compose_results.py _resolve_outcome",
+          "kind": "observed",
+          "direction": "supports",
+          "source_quality": "artifact",
+          "description": "Verified by reading the outcome resolution: strategies resolve outcome strings by precedence/majority; no score arithmetic exists in composition today. The claim is that this remains true with lanes present.",
+          "source_id": "p5-eval-before-inspection-2026-10-12",
+          "independent_of": [],
+          "observed_at": null,
+          "content_hash": null
+        }
+      ],
+      "assumptions": [],
+      "alternatives": [],
+      "falsification_tests": [
+        "Find any composed output containing a numeric score derived from lane-2 state, or an averaged/blended lane figure."
+      ],
+      "uncertainty": "insufficient_evidence",
+      "severity": "medium",
+      "source_ref": "",
+      "domain": "",
+      "confidence": 0.6950000000000002,
+      "confidence_band": "medium",
+      "failures": [
+        {
+          "id": "AEE-EVAL-P5-03-IRREDUCIBILITY-CHALLENGE",
+          "claim_id": "EVAL-P5-03",
+          "challenge": "Irreducibility challenge",
+          "breakpoint": "Claim may contain multiple independently falsifiable propositions",
+          "severity": "medium",
+          "category": "coverage_gap",
+          "recovery_hint": "Split the claim into atomic propositions and link them explicitly.",
+          "resolved": false,
+          "disposition": null
+        },
+        {
+          "id": "AEE-EVAL-P5-03-INDEPENDENCE-UNMODELED",
+          "claim_id": "EVAL-P5-03",
+          "challenge": "Shared-evidence independence challenge",
+          "breakpoint": "Supporting evidence 'p5-eval-before-inspection-2026-10-12' (ref(s): scripts/python/compose_results.py, scripts/python/compose_results.py _resolve_outcome, scripts/python/compose_results.py summary string) is shared with claim(s) EVAL-P5-01, EVAL-P5-02 and no independence is declared for it; the same evidence may be counted as independent corroboration in each claim",
+          "severity": "medium",
+          "category": "independence_unmodeled",
+          "recovery_hint": "Declare independent_of between the evidence items, or record that the corroboration is shared.",
+          "resolved": false,
+          "disposition": null
+        },
+        {
+          "id": "AEE-EVAL-P5-03-STAGE-CAP",
+          "claim_id": "EVAL-P5-03",
+          "challenge": "Stage cap",
+          "breakpoint": "Stage cap (Spec 004 R1.3): claim at stage 'created' may not report status 'supported'; reported as 'draft' (policy verdict ceiling: unjudged); the cap lifts with a recorded checking event (an assessment run recorded as a stage event) (Spec 004 R1.3)",
+          "severity": "low",
+          "category": "stage_cap",
+          "recovery_hint": "Record the stage event that lifts the cap: a recorded checking event (an assessment run recorded as a stage event).",
+          "resolved": false,
+          "disposition": null
+        }
+      ],
+      "metadata": {},
+      "dispositions": [],
+      "stage": "created",
+      "stage_events": [],
+      "headline": false,
+      "role": null
+    },
+    {
+      "id": "EVAL-P5-04",
+      "text": "Lane-less inputs compose exactly as before: no lane_states key and no lane language appears in a composed result built only from results that carry no lane data.",
+      "kind": "requirement",
+      "status": "supported",
+      "boundary": [
+        "scripts/python/compose_results.py with lane-less inputs"
+      ],
+      "depends_on": [],
+      "conflicts_with": [],
+      "evidence": [
+        {
+          "ref": "specs/001-lane-paired-composition/spec.md P5-V4",
+          "kind": "asserted",
+          "direction": "supports",
+          "source_quality": "primary",
+          "description": "The pre-change behavior is the specification for lane-less inputs; the FR-6 suite pins it.",
+          "source_id": "p5-eval-spec-2026-10-12",
+          "independent_of": [],
+          "observed_at": null,
+          "content_hash": null
+        }
+      ],
+      "assumptions": [],
+      "alternatives": [],
+      "falsification_tests": [
+        "Compose lane-less results after this change and find a lane_states key or a lane sentence that was not there before."
+      ],
+      "uncertainty": "insufficient_evidence",
+      "severity": "medium",
+      "source_ref": "",
+      "domain": "",
+      "confidence": 0.255625,
+      "confidence_band": "low",
+      "failures": [
+        {
+          "id": "AEE-EVAL-P5-04-IRREDUCIBILITY-CHALLENGE",
+          "claim_id": "EVAL-P5-04",
+          "challenge": "Irreducibility challenge",
+          "breakpoint": "Claim may contain multiple independently falsifiable propositions",
+          "severity": "medium",
+          "category": "coverage_gap",
+          "recovery_hint": "Split the claim into atomic propositions and link them explicitly.",
+          "resolved": false,
+          "disposition": null
+        },
+        {
+          "id": "AEE-EVAL-P5-04-EVIDENCE-GROUNDING-CHALL",
+          "claim_id": "EVAL-P5-04",
+          "challenge": "Evidence-grounding challenge",
+          "breakpoint": "Claim is labeled supported without observed supporting evidence",
+          "severity": "high",
+          "category": "unsupported_claim",
+          "recovery_hint": "Attach independently inspectable evidence or downgrade the status.",
+          "resolved": false,
+          "disposition": null
+        },
+        {
+          "id": "AEE-EVAL-P5-04-STAGE-CAP",
+          "claim_id": "EVAL-P5-04",
+          "challenge": "Stage cap",
+          "breakpoint": "Stage cap (Spec 004 R1.3): claim at stage 'created' may not report status 'supported'; reported as 'draft' (policy verdict ceiling: unjudged); the cap lifts with a recorded checking event (an assessment run recorded as a stage event) (Spec 004 R1.3)",
+          "severity": "low",
+          "category": "stage_cap",
+          "recovery_hint": "Record the stage event that lifts the cap: a recorded checking event (an assessment run recorded as a stage event).",
+          "resolved": false,
+          "disposition": null
+        }
+      ],
+      "metadata": {},
+      "dispositions": [],
+      "stage": "created",
+      "stage_events": [],
+      "headline": false,
+      "role": null
+    }
+  ],
+  "scores": {
+    "EVAL-P5-01": {
+      "claim_id": "EVAL-P5-01",
+      "direct_score": 0.6200000000000001,
+      "propagated_score": 0.6200000000000001,
+      "band": "medium",
+      "components": {
+        "evidence": 0.9,
+        "independence": 0.5,
+        "falsifiability": 0.5,
+        "boundary": 0.5,
+        "contradiction_penalty": 0
+      },
+      "declared_state": {
+        "status": "supported",
+        "uncertainty": "insufficient_evidence",
+        "severity": "medium",
+        "conflicts_with": []
+      },
+      "propagation": {
+        "status": "propagated",
+        "cycle_component": []
+      },
+      "notes": [
+        "Fewer than two independent supporting sources",
+        "Independence basis: inferred-from-references (distinct references counted as independent; may overstate independence when references share an origin)",
+        "Falsification test 'Compose a result set containing an AEE result with metadata.lanes and find no lane_states in the composed metadata, or find the lane pair altered from the input.' earns partial credit (FR-8.7): failed criteria: no checkable condition (no numeric bound, comparator, or observation/action term)",
+        "Boundary entry 'scripts/python/compose_results.py composition output' earns partial credit (FR-8.7): failed criteria: names no scope or limit (no scope term or numeric bound)",
+        "Freshness penalty 0.100 on the supporting set: 0 fresh, 0 recent, 0 stale, 1 unknown of 1 item(s); unknown freshness counts as stale (FR-8.6)",
+        "Stage cap (Spec 004 R1.3): claim at stage 'created' may not report status 'supported'; reported as 'draft' (policy verdict ceiling: unjudged)"
+      ]
+    },
+    "EVAL-P5-02": {
+      "claim_id": "EVAL-P5-02",
+      "direct_score": 0.6950000000000002,
+      "propagated_score": 0.6200000000000001,
+      "band": "medium",
+      "components": {
+        "evidence": 0.9,
+        "independence": 0.5,
+        "falsifiability": 1.0,
+        "boundary": 0.5,
+        "contradiction_penalty": 0
+      },
+      "declared_state": {
+        "status": "supported",
+        "uncertainty": "insufficient_evidence",
+        "severity": "medium",
+        "conflicts_with": []
+      },
+      "propagation": {
+        "status": "propagated",
+        "cycle_component": []
+      },
+      "notes": [
+        "Fewer than two independent supporting sources",
+        "Independence basis: inferred-from-references (distinct references counted as independent; may overstate independence when references share an origin)",
+        "Boundary entry 'scripts/python/compose_results.py summary construction' earns partial credit (FR-8.7): failed criteria: names no scope or limit (no scope term or numeric bound)",
+        "Freshness penalty 0.100 on the supporting set: 0 fresh, 0 recent, 0 stale, 1 unknown of 1 item(s); unknown freshness counts as stale (FR-8.6)",
+        "Capped by weakest dependency at 0.620",
+        "Stage cap (Spec 004 R1.3): claim at stage 'created' may not report status 'supported'; reported as 'draft' (policy verdict ceiling: unjudged)"
+      ]
+    },
+    "EVAL-P5-03": {
+      "claim_id": "EVAL-P5-03",
+      "direct_score": 0.6950000000000002,
+      "propagated_score": 0.6950000000000002,
+      "band": "medium",
+      "components": {
+        "evidence": 0.9,
+        "independence": 0.5,
+        "falsifiability": 1.0,
+        "boundary": 0.5,
+        "contradiction_penalty": 0
+      },
+      "declared_state": {
+        "status": "supported",
+        "uncertainty": "insufficient_evidence",
+        "severity": "medium",
+        "conflicts_with": []
+      },
+      "propagation": {
+        "status": "propagated",
+        "cycle_component": []
+      },
+      "notes": [
+        "Fewer than two independent supporting sources",
+        "Independence basis: inferred-from-references (distinct references counted as independent; may overstate independence when references share an origin)",
+        "Boundary entry 'scripts/python/compose_results.py outcome resolution and output shape' earns partial credit (FR-8.7): failed criteria: names no scope or limit (no scope term or numeric bound)",
+        "Freshness penalty 0.100 on the supporting set: 0 fresh, 0 recent, 0 stale, 1 unknown of 1 item(s); unknown freshness counts as stale (FR-8.6)",
+        "Stage cap (Spec 004 R1.3): claim at stage 'created' may not report status 'supported'; reported as 'draft' (policy verdict ceiling: unjudged)"
+      ]
+    },
+    "EVAL-P5-04": {
+      "claim_id": "EVAL-P5-04",
+      "direct_score": 0.255625,
+      "propagated_score": 0.255625,
+      "band": "low",
+      "components": {
+        "evidence": 0.23750000000000004,
+        "independence": 0.5,
+        "falsifiability": 0.5,
+        "boundary": 0.5,
+        "contradiction_penalty": 0
+      },
+      "declared_state": {
+        "status": "supported",
+        "uncertainty": "insufficient_evidence",
+        "severity": "medium",
+        "conflicts_with": []
+      },
+      "propagation": {
+        "status": "propagated",
+        "cycle_component": []
+      },
+      "notes": [
+        "No observed supporting evidence",
+        "Fewer than two independent supporting sources",
+        "Independence basis: inferred-from-references (distinct references counted as independent; may overstate independence when references share an origin)",
+        "Falsification test 'Compose lane-less results after this change and find a lane_states key or a lane sentence that was not there before.' earns partial credit (FR-8.7): failed criteria: no checkable condition (no numeric bound, comparator, or observation/action term)",
+        "Boundary entry 'scripts/python/compose_results.py with lane-less inputs' earns partial credit (FR-8.7): failed criteria: names no scope or limit (no scope term or numeric bound)",
+        "Freshness penalty 0.100 on the supporting set: 0 fresh, 0 recent, 0 stale, 1 unknown of 1 item(s); unknown freshness counts as stale (FR-8.6)",
+        "Stage cap (Spec 004 R1.3): claim at stage 'created' may not report status 'supported'; reported as 'draft' (policy verdict ceiling: unjudged)"
+      ]
+    }
+  },
+  "verdicts": {
+    "EVAL-P5-01": {
+      "claim_id": "EVAL-P5-01",
+      "verdict": "unjudged",
+      "reasons": [
+        "stage cap (Spec 004 R1.3): claim is at stage 'created'; no policy verdict is issued (unjudged) until a recorded checking event (an assessment run recorded as a stage event)"
+      ]
+    },
+    "EVAL-P5-02": {
+      "claim_id": "EVAL-P5-02",
+      "verdict": "unjudged",
+      "reasons": [
+        "stage cap (Spec 004 R1.3): claim is at stage 'created'; no policy verdict is issued (unjudged) until a recorded checking event (an assessment run recorded as a stage event)"
+      ]
+    },
+    "EVAL-P5-03": {
+      "claim_id": "EVAL-P5-03",
+      "verdict": "unjudged",
+      "reasons": [
+        "stage cap (Spec 004 R1.3): claim is at stage 'created'; no policy verdict is issued (unjudged) until a recorded checking event (an assessment run recorded as a stage event)"
+      ]
+    },
+    "EVAL-P5-04": {
+      "claim_id": "EVAL-P5-04",
+      "verdict": "unjudged",
+      "reasons": [
+        "stage cap (Spec 004 R1.3): claim is at stage 'created'; no policy verdict is issued (unjudged) until a recorded checking event (an assessment run recorded as a stage event)"
+      ]
+    }
+  },
+  "recoveries": [
+    {
+      "failure_id": "AEE-EVAL-P5-04-EVIDENCE-GROUNDING-CHALL",
+      "claim_id": "EVAL-P5-04",
+      "strategy": "gather_evidence",
+      "action": "Attach independently inspectable evidence or downgrade the status.",
+      "priority": 2,
+      "verification": "At least one inspectable non-self-attested evidence item is attached."
+    },
+    {
+      "failure_id": "AEE-EVAL-P5-01-INDEPENDENCE-UNMODELED",
+      "claim_id": "EVAL-P5-01",
+      "strategy": "clarify",
+      "action": "Declare independent_of between the evidence items, or record that the corroboration is shared.",
+      "priority": 3,
+      "verification": "Independence between the shared evidence items is declared, or the shared corroboration is recorded as shared."
+    },
+    {
+      "failure_id": "AEE-EVAL-P5-01-IRREDUCIBILITY-CHALLENGE",
+      "claim_id": "EVAL-P5-01",
+      "strategy": "decompose",
+      "action": "Split the claim into atomic propositions and link them explicitly.",
+      "priority": 3,
+      "verification": "Every resulting claim contains one independently falsifiable proposition."
+    },
+    {
+      "failure_id": "AEE-EVAL-P5-01-NEGATION-CONFLICT-CHALLE",
+      "claim_id": "EVAL-P5-01",
+      "strategy": "resolve_contradiction",
+      "action": "Confirm whether the claims share a boundary and preserve both pending review.",
+      "priority": 3,
+      "verification": "Both positions remain recorded; discriminating evidence resolves or scopes them."
+    },
+    {
+      "failure_id": "AEE-EVAL-P5-02-INDEPENDENCE-UNMODELED",
+      "claim_id": "EVAL-P5-02",
+      "strategy": "clarify",
+      "action": "Declare independent_of between the evidence items, or record that the corroboration is shared.",
+      "priority": 3,
+      "verification": "Independence between the shared evidence items is declared, or the shared corroboration is recorded as shared."
+    },
+    {
+      "failure_id": "AEE-EVAL-P5-02-IRREDUCIBILITY-CHALLENGE",
+      "claim_id": "EVAL-P5-02",
+      "strategy": "decompose",
+      "action": "Split the claim into atomic propositions and link them explicitly.",
+      "priority": 3,
+      "verification": "Every resulting claim contains one independently falsifiable proposition."
+    },
+    {
+      "failure_id": "AEE-EVAL-P5-03-INDEPENDENCE-UNMODELED",
+      "claim_id": "EVAL-P5-03",
+      "strategy": "clarify",
+      "action": "Declare independent_of between the evidence items, or record that the corroboration is shared.",
+      "priority": 3,
+      "verification": "Independence between the shared evidence items is declared, or the shared corroboration is recorded as shared."
+    },
+    {
+      "failure_id": "AEE-EVAL-P5-03-IRREDUCIBILITY-CHALLENGE",
+      "claim_id": "EVAL-P5-03",
+      "strategy": "decompose",
+      "action": "Split the claim into atomic propositions and link them explicitly.",
+      "priority": 3,
+      "verification": "Every resulting claim contains one independently falsifiable proposition."
+    },
+    {
+      "failure_id": "AEE-EVAL-P5-04-IRREDUCIBILITY-CHALLENGE",
+      "claim_id": "EVAL-P5-04",
+      "strategy": "decompose",
+      "action": "Split the claim into atomic propositions and link them explicitly.",
+      "priority": 3,
+      "verification": "Every resulting claim contains one independently falsifiable proposition."
+    },
+    {
+      "failure_id": "AEE-EVAL-P5-01-STAGE-CAP",
+      "claim_id": "EVAL-P5-01",
+      "strategy": "define_falsifier",
+      "action": "Record the stage event that lifts the cap: a recorded checking event (an assessment run recorded as a stage event).",
+      "priority": 4,
+      "verification": "A concrete observation that would refute the claim is documented."
+    },
+    {
+      "failure_id": "AEE-EVAL-P5-02-STAGE-CAP",
+      "claim_id": "EVAL-P5-02",
+      "strategy": "define_falsifier",
+      "action": "Record the stage event that lifts the cap: a recorded checking event (an assessment run recorded as a stage event).",
+      "priority": 4,
+      "verification": "A concrete observation that would refute the claim is documented."
+    },
+    {
+      "failure_id": "AEE-EVAL-P5-03-STAGE-CAP",
+      "claim_id": "EVAL-P5-03",
+      "strategy": "define_falsifier",
+      "action": "Record the stage event that lifts the cap: a recorded checking event (an assessment run recorded as a stage event).",
+      "priority": 4,
+      "verification": "A concrete observation that would refute the claim is documented."
+    },
+    {
+      "failure_id": "AEE-EVAL-P5-04-STAGE-CAP",
+      "claim_id": "EVAL-P5-04",
+      "strategy": "define_falsifier",
+      "action": "Record the stage event that lifts the cap: a recorded checking event (an assessment run recorded as a stage event).",
+      "priority": 4,
+      "verification": "A concrete observation that would refute the claim is documented."
+    }
+  ],
+  "metadata": {
+    "threshold": 0.7,
+    "stage_defaulted_claims": [
+      "EVAL-P5-01",
+      "EVAL-P5-02",
+      "EVAL-P5-03",
+      "EVAL-P5-04"
+    ],
+    "engine_version": "1.5.0"
+  },
+  "reported_statuses": {
+    "EVAL-P5-01": "draft",
+    "EVAL-P5-02": "draft",
+    "EVAL-P5-03": "draft",
+    "EVAL-P5-04": "draft"
+  },
+  "stage_caps": [
+    {
+      "claim_id": "EVAL-P5-01",
+      "stage": "created",
+      "author_status": "supported",
+      "reported_status": "draft",
+      "verdict_ceiling": "unjudged",
+      "qualified_supported": false,
+      "note": "Stage cap (Spec 004 R1.3): claim at stage 'created' may not report status 'supported'; reported as 'draft' (policy verdict ceiling: unjudged)",
+      "lifting_event": "a recorded checking event (an assessment run recorded as a stage event)"
+    },
+    {
+      "claim_id": "EVAL-P5-02",
+      "stage": "created",
+      "author_status": "supported",
+      "reported_status": "draft",
+      "verdict_ceiling": "unjudged",
+      "qualified_supported": false,
+      "note": "Stage cap (Spec 004 R1.3): claim at stage 'created' may not report status 'supported'; reported as 'draft' (policy verdict ceiling: unjudged)",
+      "lifting_event": "a recorded checking event (an assessment run recorded as a stage event)"
+    },
+    {
+      "claim_id": "EVAL-P5-03",
+      "stage": "created",
+      "author_status": "supported",
+      "reported_status": "draft",
+      "verdict_ceiling": "unjudged",
+      "qualified_supported": false,
+      "note": "Stage cap (Spec 004 R1.3): claim at stage 'created' may not report status 'supported'; reported as 'draft' (policy verdict ceiling: unjudged)",
+      "lifting_event": "a recorded checking event (an assessment run recorded as a stage event)"
+    },
+    {
+      "claim_id": "EVAL-P5-04",
+      "stage": "created",
+      "author_status": "supported",
+      "reported_status": "draft",
+      "verdict_ceiling": "unjudged",
+      "qualified_supported": false,
+      "note": "Stage cap (Spec 004 R1.3): claim at stage 'created' may not report status 'supported'; reported as 'draft' (policy verdict ceiling: unjudged)",
+      "lifting_event": "a recorded checking event (an assessment run recorded as a stage event)"
+    }
+  ],
+  "not_understood": [
+    "EVAL-P5-01: Stage cap (Spec 004 R1.3): claim at stage 'created' may not report status 'supported'; reported as 'draft' (policy verdict ceiling: unjudged)",
+    "EVAL-P5-02: Stage cap (Spec 004 R1.3): claim at stage 'created' may not report status 'supported'; reported as 'draft' (policy verdict ceiling: unjudged)",
+    "EVAL-P5-03: Stage cap (Spec 004 R1.3): claim at stage 'created' may not report status 'supported'; reported as 'draft' (policy verdict ceiling: unjudged)",
+    "EVAL-P5-04: Stage cap (Spec 004 R1.3): claim at stage 'created' may not report status 'supported'; reported as 'draft' (policy verdict ceiling: unjudged)",
+    "EVAL-P5-01: its lifecycle stage was not recorded and defaulted to 'created' on load - its position in the lifecycle is unrecorded, not established.",
+    "EVAL-P5-01: open challenges this assessment does not resolve: contradiction, coverage_gap, independence_unmodeled.",
+    "EVAL-P5-01: propagated score 0.620 is below the 0.70 threshold - the claim is not established by its evidence as recorded.",
+    "EVAL-P5-02: its lifecycle stage was not recorded and defaulted to 'created' on load - its position in the lifecycle is unrecorded, not established.",
+    "EVAL-P5-02: open challenges this assessment does not resolve: coverage_gap, independence_unmodeled.",
+    "EVAL-P5-02: propagated score 0.620 is below the 0.70 threshold - the claim is not established by its evidence as recorded.",
+    "EVAL-P5-03: its lifecycle stage was not recorded and defaulted to 'created' on load - its position in the lifecycle is unrecorded, not established.",
+    "EVAL-P5-03: open challenges this assessment does not resolve: coverage_gap, independence_unmodeled.",
+    "EVAL-P5-03: propagated score 0.695 is below the 0.70 threshold - the claim is not established by its evidence as recorded.",
+    "EVAL-P5-04: its lifecycle stage was not recorded and defaulted to 'created' on load - its position in the lifecycle is unrecorded, not established.",
+    "EVAL-P5-04: open challenges this assessment does not resolve: coverage_gap, unsupported_claim.",
+    "EVAL-P5-04: propagated score 0.256 is below the 0.70 threshold - the claim is not established by its evidence as recorded."
+  ],
+  "lanes": {
+    "lane_1": {
+      "label": "machine verification",
+      "outcome": "gather_evidence",
+      "threshold": 0.7,
+      "claims_at_or_above_threshold": 0,
+      "claims_below_threshold": 4
+    },
+    "lane_2": {
+      "label": "human acceptance",
+      "stage_counts": {
+        "created": 4,
+        "checked": 0,
+        "explained": 0,
+        "accepted": 0,
+        "digested": 0
+      },
+      "claims_below_explained": 4,
+      "exposition_covered_claims": 0,
+      "exposition_missing_claims": 4,
+      "verified_unexplained_claims": 0,
+      "stage_capped_claims": 4,
+      "attribution_contested_claims": 0
+    },
+    "per_claim": {
+      "EVAL-P5-01": {
+        "lane_1": {
+          "score": 0.6200000000000001,
+          "direct_score": 0.6200000000000001,
+          "author_status": "supported",
+          "at_or_above_threshold": false
+        },
+        "lane_2": {
+          "stage": "created",
+          "stored_stage": "created",
+          "stage_capped": true,
+          "cap_reasons": [
+            "Stage cap (Spec 004 R1.3): claim at stage 'created' may not report status 'supported'; reported as 'draft' (policy verdict ceiling: unjudged)"
+          ],
+          "exposition": false,
+          "verified_unexplained": false,
+          "attribution_contested": false
+        }
+      },
+      "EVAL-P5-02": {
+        "lane_1": {
+          "score": 0.6200000000000001,
+          "direct_score": 0.6950000000000002,
+          "author_status": "supported",
+          "at_or_above_threshold": false
+        },
+        "lane_2": {
+          "stage": "created",
+          "stored_stage": "created",
+          "stage_capped": true,
+          "cap_reasons": [
+            "Stage cap (Spec 004 R1.3): claim at stage 'created' may not report status 'supported'; reported as 'draft' (policy verdict ceiling: unjudged)"
+          ],
+          "exposition": false,
+          "verified_unexplained": false,
+          "attribution_contested": false
+        }
+      },
+      "EVAL-P5-03": {
+        "lane_1": {
+          "score": 0.6950000000000002,
+          "direct_score": 0.6950000000000002,
+          "author_status": "supported",
+          "at_or_above_threshold": false
+        },
+        "lane_2": {
+          "stage": "created",
+          "stored_stage": "created",
+          "stage_capped": true,
+          "cap_reasons": [
+            "Stage cap (Spec 004 R1.3): claim at stage 'created' may not report status 'supported'; reported as 'draft' (policy verdict ceiling: unjudged)"
+          ],
+          "exposition": false,
+          "verified_unexplained": false,
+          "attribution_contested": false
+        }
+      },
+      "EVAL-P5-04": {
+        "lane_1": {
+          "score": 0.255625,
+          "direct_score": 0.255625,
+          "author_status": "supported",
+          "at_or_above_threshold": false
+        },
+        "lane_2": {
+          "stage": "created",
+          "stored_stage": "created",
+          "stage_capped": true,
+          "cap_reasons": [
+            "Stage cap (Spec 004 R1.3): claim at stage 'created' may not report status 'supported'; reported as 'draft' (policy verdict ceiling: unjudged)"
+          ],
+          "exposition": false,
+          "verified_unexplained": false,
+          "attribution_contested": false
+        }
+      }
+    }
+  }
+}

@@ -54,6 +54,10 @@ For each result file:
 
 Evaluator identity for deduplication and counting is the payload `evaluator.id` + `version`, never the filename. Duplicates of one evaluator count once under every strategy (the latest timestamped filename wins, deterministically).
 
+### Lane pairing (Spec 004 P5)
+
+Composition never re-blends the two epistemic lanes. When an input result carries the AEE lane pair (`metadata.lanes`: lane 1 machine verification, lane 2 human acceptance), the composed result carries each evaluator's pair verbatim in `metadata.lane_states` — lane 2 holds stages and counts, never a score, and no combined lane figure is computed. When any carried lane 2 lags (claims below the explained stage, verified-but-unexplained claims, residual `not_understood` entries), the composed summary says so explicitly, including on a `pass`: a composed outcome is a checking-stage decision, not acceptance or digestion. Report the lag sentence with the verdict whenever it appears.
+
 ### 3. Apply Composition Strategy
 
 #### `strict` (default)
