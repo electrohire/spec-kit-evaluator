@@ -643,9 +643,12 @@ def compose_results(
         for filename, problem in invalid
     ]
 
+    outcomes = ", ".join(
+        f"{s['evaluator_id']}={s['outcome']}" for s in evaluator_summaries
+    )
     summary = (
         f"{len(results)} evaluator(s) ran. "
-        f"Outcomes: {', '.join(f'{s['evaluator_id']}={s['outcome']}' for s in evaluator_summaries)}. "
+        f"Outcomes: {outcomes}. "
         f"{len(all_findings)} finding(s) total."
     )
     if invalid:

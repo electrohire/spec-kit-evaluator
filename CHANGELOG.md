@@ -2,6 +2,24 @@
 
 All notable changes to the Evaluator Contract extension will be documented in this file.
 
+## [1.1.1] - 2026-10-15
+
+### Fixed
+- The Python composer and `examples/demo.py` failed to parse on Python
+  3.11: they nested same-type quotes inside f-strings, which only Python
+  3.12+ (PEP 701) accepts. The quotes are now distinct (the composer
+  builds its outcome list outside the f-string); output is unchanged.
+- README installation used `specify extension add evaluator`, which the
+  discovery-only community catalog refuses, and a stale in-tree `--dev`
+  path; it now gives the release-archive `--from` command and the composer
+  dependencies.
+
+### Changed
+- CI runs the Python test suite on Ubuntu, Windows, and macOS with
+  Python 3.11, 3.12, and 3.13, matching applied-epistemic-engineering and
+  spec-kit-aee. It installs `jq` where missing and fails when a composer
+  toolchain is absent, so no target silently skips a parity leg.
+
 ## [1.1.0] - 2026-10-12
 
 ### Added

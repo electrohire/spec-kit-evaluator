@@ -21,14 +21,22 @@ The evaluator contract lets any extension:
 
 ## Installation
 
+The Spec Kit community catalog is discovery-only, so install from this
+repository's release archive:
+
 ```bash
-specify extension add evaluator
+specify extension add evaluator --from https://github.com/electrohire/spec-kit-evaluator/archive/refs/tags/v1.1.1.zip
 ```
 
-Or for local development:
+The Python composer needs `jsonschema>=4.0` (`requirements.txt`) in the
+Python that runs it; the Bash composer needs `jq`; the PowerShell composer has
+no extra dependency. [spec-kit-aee](https://github.com/electrohire/spec-kit-aee)
+installs this extension and the composer's dependency automatically.
+
+For local development, from a checkout of this repository:
 
 ```bash
-specify extension add --dev /path/to/spec-kit/extensions/evaluator
+specify extension add --dev /absolute/path/to/spec-kit-evaluator
 ```
 
 ## Commands

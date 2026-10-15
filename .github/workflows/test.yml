@@ -58,11 +58,14 @@ jobs:
           "
 
   test-python:
-    name: Test Python (${{ matrix.os }})
+    name: Test Python (${{ matrix.os }}, ${{ matrix.python }})
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
+      # Same targets as applied-epistemic-engineering and spec-kit-aee.
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ["3.11", "3.12", "3.13"]
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -70,10 +73,32 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: "3.13"
+          python-version: ${{ matrix.python }}
 
       - name: Install Python dependencies
         run: pip install -r requirements.txt pyyaml
+
+      - name: Install jq (Linux)
+        if: runner.os == 'Linux'
+        run: command -v jq || (sudo apt-get update -qq && sudo apt-get install -y -qq jq)
+
+      - name: Install jq (macOS)
+        if: runner.os == 'macOS'
+        run: command -v jq || brew install jq
+
+      # The parity suite skips a composer leg whose tool is absent; fail
+      # instead, so no target silently runs a reduced suite. The bash leg
+      # is excluded on Windows by the tests themselves (`bash` there may
+      # be the WSL launcher stub), so Windows requires pwsh only.
+      - name: Require composer toolchains (Linux, macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: command -v bash && command -v jq && command -v pwsh
+
+      - name: Require composer toolchain (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Get-Command pwsh
 
       - name: Run unit + parity tests
         run: python3 -m unittest discover -s tests -v
@@ -142,6 +167,7 @@ jobs:
     name: Test Bash (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
     steps:
@@ -218,6 +244,7 @@ jobs:
     name: Test PowerShell (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
