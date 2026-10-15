@@ -2,7 +2,7 @@
 
 All notable changes to the Evaluator Contract extension will be documented in this file.
 
-## [1.1.1] - Unreleased
+## [1.1.1] - 2026-10-15
 
 ### Fixed
 - The Python composer and `examples/demo.py` failed to parse on Python
