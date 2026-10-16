@@ -2,6 +2,14 @@
 
 All notable changes to the Evaluator Contract extension will be documented in this file.
 
+## Unreleased
+
+### Changed
+- Add an evaluator agent skill for standalone and Spec Kit composition and
+  document natural-language use of the installed operation skills.
+- Clarify distribution and extension names, the limits of composition and
+  independent evaluation, and this repository's own Spec Kit/AEE setup.
+
 ## [1.1.1] - 2026-10-15
 
 ### Fixed

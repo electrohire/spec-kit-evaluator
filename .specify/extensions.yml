@@ -1,0 +1,85 @@
+installed:
+- aee
+- evaluator
+settings:
+  auto_execute_hooks: true
+hooks:
+  after_specify:
+  - extension: aee
+    command: speckit.aee.assess
+    enabled: true
+    optional: true
+    priority: 30
+    prompt: Run an epistemic assessment of the specification?
+    description: Challenge requirements, assumptions, boundaries, and evidence after
+      specification
+    condition: null
+  - extension: evaluator
+    command: speckit.evaluator.run
+    enabled: true
+    optional: true
+    priority: 20
+    prompt: Run evaluators against the specification?
+    description: Evaluate spec quality, evidence, and provenance after specification
+    condition: null
+  after_plan:
+  - extension: aee
+    command: speckit.aee.assess
+    enabled: true
+    optional: true
+    priority: 30
+    prompt: Run an epistemic assessment of the plan?
+    description: Challenge plan claims, decisions, dependencies, and supporting evidence
+    condition: null
+  - extension: evaluator
+    command: speckit.evaluator.run
+    enabled: true
+    optional: true
+    priority: 20
+    prompt: Run evaluators against the plan?
+    description: Evaluate plan assumptions, risks, and coverage after planning
+    condition: null
+  after_tasks:
+  - extension: aee
+    command: speckit.aee.assess
+    enabled: true
+    optional: true
+    priority: 30
+    prompt: Run an epistemic assessment of the task breakdown?
+    description: Challenge task traceability and the evidence required to verify completion
+    condition: null
+  - extension: evaluator
+    command: speckit.evaluator.run
+    enabled: true
+    optional: true
+    priority: 20
+    prompt: Run evaluators against the task breakdown?
+    description: Evaluate task completeness and traceability after task generation
+    condition: null
+  after_implement:
+  - extension: aee
+    command: speckit.aee.assess
+    enabled: true
+    optional: true
+    priority: 30
+    prompt: Run an epistemic assessment of the implementation?
+    description: Compare implementation claims with independently inspectable evidence
+    condition: null
+  - extension: evaluator
+    command: speckit.evaluator.run
+    enabled: true
+    optional: true
+    priority: 20
+    prompt: Run evaluators against the implementation?
+    description: Evaluate implementation against spec, plan, and tasks
+    condition: null
+  after_verify:
+  - extension: aee
+    command: speckit.aee.gaps
+    enabled: true
+    optional: true
+    priority: 40
+    prompt: Regenerate the gap register from verification evidence?
+    description: Cross-reference the verification matrix against test evidence and
+      update GAPS.md
+    condition: null

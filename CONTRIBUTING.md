@@ -7,6 +7,10 @@ evaluator behavior, keep the Python, Bash, and PowerShell composers at parity
 
 ## Reproduce CI
 
+See [development setup](DEVELOPMENT.md) for this repository's own Spec Kit/AEE
+installation and the shared component/dependency names. Runtime requirements
+for a standalone composer differ from the AEE adapter's managed runtime.
+
 CI runs on Ubuntu, Windows, and macOS with Python 3.11, 3.12, and 3.13, the
 same targets as applied-epistemic-engineering and spec-kit-aee. Code must parse
 on Python 3.11 (for example, no same-quote nesting inside f-strings).
@@ -56,6 +60,8 @@ Prior cases: original submission
 [#4414](https://github.com/github/spec-kit/issues/4414) (catalog PR
 [#4420](https://github.com/github/spec-kit/pull/4420)), after
 [#4403](https://github.com/github/spec-kit/issues/4403) failed validation.
-The catalog still lists 1.0.0; 1.1.0 was never submitted.
+The evaluator 1.1.1 catalog update was submitted through
+[#4979](https://github.com/github/spec-kit/issues/4979) and merged in
+[#4980](https://github.com/github/spec-kit/pull/4980). The 1.1.0 release was never submitted.
 
 By contributing, you agree to the MIT license.
