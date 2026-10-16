@@ -1,8 +1,12 @@
 # Evaluator Contract Extension
 
+[![CI](https://github.com/electrohire/spec-kit-evaluator/actions/workflows/test.yml/badge.svg)](https://github.com/electrohire/spec-kit-evaluator/actions/workflows/test.yml)
+[![CodeQL](https://github.com/electrohire/spec-kit-evaluator/actions/workflows/codeql.yml/badge.svg)](https://github.com/electrohire/spec-kit-evaluator/actions/workflows/codeql.yml)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/electrohire/spec-kit-evaluator/badge)](https://securityscorecards.dev/viewer/?uri=github.com/electrohire/spec-kit-evaluator)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/15600/badge)](https://www.bestpractices.dev/en/projects/15600)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-OpenSSF assessment: 97%; reporting-history criteria remain unclaimed.
+OpenSSF Best Practices assessment: 97% (in progress); reporting-history criteria remain unclaimed.
 
 Standard evaluator result contract for evidence, provenance, uncertainty, and recovery — a provider-neutral protocol for extensions that evaluate artifact quality between Spec-Driven Development phases.
 
@@ -212,7 +216,7 @@ When multiple evaluators run at the same phase, their results are composed:
 All three composers (Python, Bash, PowerShell) implement the same contract (Spec 003 FR-6), verified by a shared fixture corpus in `tests/`:
 
 - **Empty fails closed.** Zero usable results — missing directory, no files for the phase, or no *valid* files — composes to `outcome: "block"` with an explicit no-results finding and exit code 2. Absence of evidence is never a pass.
-- **Inputs are validated.** The Python composer always applies the shipped JSON Schema (`jsonschema>=4.0`, see `requirements.txt`, is a hard dependency — its absence is a hard error, never a silent skip). Bash/PowerShell enforce the same minimum contract (required keys, enums, evaluator `id` + `version`, payload `phase` equal to the requested phase). A malformed or invalid file is **wrapped as a blocking `schema_violation` finding** and votes `block` under every strategy — never skipped toward pass, never a traceback.
+- **Inputs are validated.** The Python composer always applies the shipped JSON Schema (`jsonschema>=4.26.0`, see `requirements.txt`, is a hard dependency — its absence is a hard error, never a silent skip). Bash/PowerShell enforce the same minimum contract (required keys, enums, evaluator `id` + `version`, payload `phase` equal to the requested phase). A malformed or invalid file is **wrapped as a blocking `schema_violation` finding** and votes `block` under every strategy — never skipped toward pass, never a traceback.
 - **Identity is the payload.** Dedup and counting use `evaluator.id` + `version`, never the filename; duplicates of one evaluator count once. Finding ids are namespaced `<evaluator.id>:<finding.id>`.
 - **Composed output is schema-valid.** No `_evaluator_id` injection, `model_routing` omitted rather than `null`, summaries within the 500-char cap; the Python composer self-validates its output before emitting it.
 - **Advisory strategies are marked.** `majority`/`optimistic` results carry `metadata.gating: false`; when they overturn a `block`, `metadata.block_overridden: true` is recorded and the inputs' outcomes stay visible in `metadata.evaluator_results`. Only `strict` compositions gate.

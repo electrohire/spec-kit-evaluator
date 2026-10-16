@@ -1,16 +1,16 @@
 # Development setup and dependency map
 
 This repository uses Spec Kit **1.2.0**, the latest published CLI at this audit,
-with AEE extension **1.5.1** and evaluator extension **1.1.1** installed into its
-own `.specify/` tree. The compatible published engine tested is **1.5.2**.
+with AEE extension **1.5.2** and evaluator extension **1.1.2** installed into its
+own `.specify/` tree. The compatible published engine tested is **1.5.3**.
 These are installed releases, not unreleased copies of this repository's code.
 
 | Component | Distribution / access | Dependency boundary |
 | --- | --- | --- |
 | Spec Kit | PyPI `specify-cli`; CLI `specify` | Scaffolds project templates and installs extensions |
 | Python engine | PyPI `applied-epistemic-engineering`; import/CLI `aee` | Usable standalone; no required runtime dependencies, Spec Kit, or evaluator extension |
-| AEE adapter | GitHub `electrohire/spec-kit-aee`; extension ID `aee` | Requires Python >=3.11, Spec Kit >=1.0.0,<2, engine >=1.5.0,<2 and evaluator >=1.0.0,<2; provisions engine, `jsonschema>=4.0`, and pinned evaluator 1.1.1 on first use |
-| Evaluator | GitHub `electrohire/spec-kit-evaluator`; extension ID `evaluator` | Shared schema/composition, not an engine; standalone Python composer needs `jsonschema>=4.0`, Bash composer needs `jq`, PowerShell composer has no extra package dependency |
+| AEE adapter | GitHub `electrohire/spec-kit-aee`; extension ID `aee` | Requires Python >=3.11, Spec Kit >=1.0.0,<2, engine >=1.5.0,<2 and evaluator >=1.0.0,<2; provisions engine, `jsonschema>=4.0`, and pinned evaluator 1.1.2 on first use |
+| Evaluator | GitHub `electrohire/spec-kit-evaluator`; extension ID `evaluator` | Shared schema/composition, not an engine; standalone Python composer needs `jsonschema>=4.26.0`, Bash composer needs `jq`, PowerShell composer has no extra package dependency |
 
 `rtk`, `headroom`, `token-router`, and `ollama` are optional routing/token-economy
 tools. They are not required to install or run deterministic AEE operations.
