@@ -2,4 +2,4 @@
 # (scripts/python/compose_results.py). jsonschema is a hard dependency:
 # composition always validates inputs against the shipped schema and
 # refuses to run without it (Spec 003 FR-6.2).
-jsonschema>=4.0
+jsonschema>=4.26.0
