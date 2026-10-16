@@ -18,7 +18,7 @@ on Python 3.11 (for example, no same-quote nesting inside f-strings).
 ```bash
 python -m pip install --require-hashes -r requirements/ci.txt
 python -m unittest discover -s tests -v
-python -m ruff check scripts tests
+python -m ruff check scripts tests fuzz
 ```
 
 Regenerate the portable CI dependency lock with `uv pip compile requirements/ci.in
@@ -34,6 +34,22 @@ strategies. It checks fail-closed outcomes, output schema validity, and input
 immutability. Run the full suite, lint, and CodeQL before major releases; retain
 minimized regression cases for any discovered issue. Confirmed exploitable
 static/dynamic-analysis findings must be fixed according to [SECURITY.md](SECURITY.md).
+
+### Coverage-guided fuzzing
+
+ClusterFuzzLite runs an instrumented Atheris target against the real Python
+composer on pull requests and main pushes. It tests all three composition
+strategies, validates every output, requires malformed inputs to block, and
+checks input immutability. It uses a digest-pinned official Linux builder and
+hash-verified Python dependencies. The Linux fuzzer is supplemental; its shared
+target and seed mutations also run in the full macOS/Windows/Linux test matrix.
+
+Run the portable target with `python -m unittest discover -s tests -p
+'test_fuzz_target.py' -v`. For local coverage-guided testing, build
+`.clusterfuzzlite/Dockerfile` with Docker and run the image's `compile` command
+with `OUT=/out` on a mounted output directory, then run `/out/composer_fuzzer`
+against the unpacked seed corpus. Keep minimized crash inputs as regressions;
+do not catch unexpected exceptions just to make a fuzz run pass.
 
 ## Release and catalog submission checklist
 

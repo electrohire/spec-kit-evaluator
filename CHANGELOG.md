@@ -4,6 +4,10 @@ All notable changes to the Evaluator Contract extension will be documented in th
 
 ## Unreleased
 
+### Added
+- Run coverage-guided Atheris composition fuzzing through ClusterFuzzLite, with
+  shared corpus/invariant tests on Linux, macOS, and Windows.
+
 ### Changed
 - Verify CI Python dependency downloads against a portable hash-pinned lock and
   declare CodeQL's default read-only token permissions explicitly.

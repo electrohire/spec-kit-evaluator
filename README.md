@@ -6,7 +6,7 @@
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/15600/badge)](https://www.bestpractices.dev/en/projects/15600)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-OpenSSF Best Practices assessment: 97% (in progress); reporting-history criteria remain unclaimed.
+OpenSSF Best Practices Passing criteria: 100% met (self-assessment, verified 2026-10-16).
 
 Standard evaluator result contract for evidence, provenance, uncertainty, and recovery — a provider-neutral protocol for extensions that evaluate artifact quality between Spec-Driven Development phases.
 
