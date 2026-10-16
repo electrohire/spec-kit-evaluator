@@ -22,7 +22,7 @@ python -m ruff check scripts tests
 ```
 
 Regenerate the portable CI dependency lock with `uv pip compile requirements/ci.in
---generate-hashes --universal --output-file requirements/ci.txt` and review the
+--generate-hashes --universal --python-version 3.11 --output-file requirements/ci.txt` and review the
 version/hash changes before committing.
 
 The Bash composer legs need `bash` and `jq` (not run on Windows); the
