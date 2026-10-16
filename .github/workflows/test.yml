@@ -19,7 +19,7 @@ jobs:
       - name: Python lint
         run: |
           python3 -m pip install --require-hashes -r requirements/ci.txt
-          python3 -m ruff check scripts tests
+          python3 -m ruff check scripts tests fuzz
 
       - name: Validate extension.yml
         run: |
