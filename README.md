@@ -4,6 +4,14 @@ Standard evaluator result contract for evidence, provenance, uncertainty, and re
 
 ## Overview
 
+In agent loops, this contract lets tools retain conflicting findings, distinguish
+observations from assertions, and compose explicit recovery/block outcomes before
+the next step. AEE supplies evidence-centered claim assessment; this extension
+supplies the neutral envelope and composition. Together they can help expose
+unsupported completion claims and preserve uncertainty during handoffs. A composed
+pass does not validate sources or guarantee a hallucination-free answer. See
+[use cases and how to evaluate the benefit](https://applied-epistemic-engineering.readthedocs.io/en/latest/use-cases/).
+
 Spec Kit has a strong lifecycle and extensible hook system, but there is no common contract for extensions that evaluate the quality or trustworthiness of artifacts between phases. This extension defines that contract.
 
 The evaluator contract lets any extension:
@@ -21,25 +29,54 @@ The evaluator contract lets any extension:
 
 ## Installation
 
-The Spec Kit community catalog is discovery-only, so install from this
-repository's release archive:
+This repository is `electrohire/spec-kit-evaluator`; its Spec Kit extension ID is
+`evaluator`. It is distributed as a GitHub archive, not a PyPI package. Its AEE
+companion is repository `electrohire/spec-kit-aee`, extension ID `aee`. The AEE
+engine is the PyPI distribution `applied-epistemic-engineering`, which installs
+the Python import and CLI `aee`. Do not use `pip install aee` for that engine.
+
+A valid result envelope and composed `pass` describe schema conformance and the
+configured composition policy. They do not certify the truth of findings,
+universal correctness, safety, or compliance. Independence of a reviewer helps
+challenge evidence; it does not turn a model's response into a certificate. See
+the engine's [names and assurance boundaries](https://applied-epistemic-engineering.readthedocs.io/en/latest/names-and-assurance/)
+and this repository's [development setup](DEVELOPMENT.md).
+
+For the complete AEE workflow in an initialized Spec Kit project:
 
 ```bash
-specify extension add evaluator --from https://github.com/electrohire/spec-kit-evaluator/archive/refs/tags/v1.1.1.zip
+specify extension add aee
 ```
 
-The Python composer needs `jsonschema>=4.0` (`requirements.txt`) in the
-Python that runs it; the Bash composer needs `jq`; the PowerShell composer has
-no extra dependency. [spec-kit-aee](https://github.com/electrohire/spec-kit-aee)
-installs this extension and the composer's dependency automatically.
+AEE provisions the engine, this companion, and the Python composer dependency;
+no separate evaluator installation is needed.
 
-For local development, from a checkout of this repository:
+For standalone AEE without Spec Kit, install only the engine:
 
 ```bash
-specify extension add --dev /absolute/path/to/spec-kit-evaluator
+python -m pip install applied-epistemic-engineering
 ```
+
+The standalone engine does not require this evaluator extension. Developers
+running the composer separately can find its Python/Bash/PowerShell prerequisites
+and component-specific installation in [development setup](DEVELOPMENT.md).
 
 ## Commands
+
+### Use an agent instead of learning command syntax
+
+Ask your agent: “Compose the evaluator results for this plan, explain conflicts,
+and identify the next evidence needed.” Spec Kit renders four operation
+`SKILL.md` files for run, compose, report, and route into the active integration's
+skill directory. The agent reads those instructions and handles execution for you.
+Reload the agent session after installation if the skills are not visible.
+
+The source [evaluator-contract skill](skills/evaluator-contract/SKILL.md) also
+guides direct composition from a checkout without Spec Kit; this onboarding skill
+is an unreleased addition. A composer does not produce the evidence it combines.
+For standalone AEE assessment, use the engine's
+[direct agent skill](https://applied-epistemic-engineering.readthedocs.io/en/latest/agent/).
+The command examples below remain useful to agents and CLI users alike.
 
 ### `/speckit.evaluator.run`
 
@@ -209,7 +246,7 @@ See `templates/evaluator-result-template.json` for a starting point.
 3. **Contradictions MUST be preserved**, not collapsed into a single synthesized answer.
 4. **Insufficient evidence MUST be represented explicitly** rather than inventing certainty.
 5. **Deterministic checks SHOULD run before probabilistic review** where appropriate.
-6. **Higher-risk work MAY require evaluator independence** — the same model/family SHOULD NOT both generate and certify the result.
+6. **Higher-risk work MAY require evaluator independence** — the same model/family SHOULD NOT both generate and independently evaluate the result. An independent evaluation is not itself a certification.
 
 ## File Structure
 
