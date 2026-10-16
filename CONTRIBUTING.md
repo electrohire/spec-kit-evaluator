@@ -16,11 +16,14 @@ same targets as applied-epistemic-engineering and spec-kit-aee. Code must parse
 on Python 3.11 (for example, no same-quote nesting inside f-strings).
 
 ```bash
-python -m pip install -r requirements.txt pyyaml
+python -m pip install --require-hashes -r requirements/ci.txt
 python -m unittest discover -s tests -v
-python -m pip install ruff==0.17.0
 python -m ruff check scripts tests
 ```
+
+Regenerate the portable CI dependency lock with `uv pip compile requirements/ci.in
+--generate-hashes --universal --output-file requirements/ci.txt` and review the
+version/hash changes before committing.
 
 The Bash composer legs need `bash` and `jq` (not run on Windows); the
 PowerShell legs need `pwsh`. CI fails when a required tool is missing instead

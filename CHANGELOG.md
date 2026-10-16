@@ -5,6 +5,8 @@ All notable changes to the Evaluator Contract extension will be documented in th
 ## Unreleased
 
 ### Changed
+- Verify CI Python dependency downloads against a portable hash-pinned lock and
+  declare CodeQL's default read-only token permissions explicitly.
 - Refresh the repository’s installed Spec Kit/AEE tooling, align the CodeQL
   init/analyze action versions, and adopt the dependency bot’s jsonschema floor.
 

@@ -18,7 +18,7 @@ jobs:
 
       - name: Python lint
         run: |
-          python3 -m pip install ruff==0.17.0
+          python3 -m pip install --require-hashes -r requirements/ci.txt
           python3 -m ruff check scripts tests
 
       - name: Validate extension.yml
@@ -81,7 +81,7 @@ jobs:
           python-version: ${{ matrix.python }}
 
       - name: Install Python dependencies
-        run: pip install -r requirements.txt pyyaml
+        run: python3 -m pip install --require-hashes -r requirements/ci.txt
 
       - name: Install jq (Linux)
         if: runner.os == 'Linux'
