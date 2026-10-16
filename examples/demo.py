@@ -3,7 +3,7 @@
 
 Creates sample evaluator results for a realistic scenario, composes them,
 generates reports in all formats, and shows model routing — all in one
-self-contained script. No dependencies beyond Python 3.11+ stdlib.
+self-contained script. Requires Python 3.11+ and jsonschema (requirements.txt).
 
 Usage:
     python extensions/evaluator/examples/demo.py
