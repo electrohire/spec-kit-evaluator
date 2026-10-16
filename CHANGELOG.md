@@ -4,6 +4,8 @@ All notable changes to the Evaluator Contract extension will be documented in th
 
 ## Unreleased
 
+## [1.1.2] - 2026-10-16
+
 ### Changed
 - Publish the private vulnerability reporting policy, add a Python lint gate,
   and fuzz malformed result bytes across all three composition strategies.

@@ -1,5 +1,9 @@
 # Evaluator Contract Extension
 
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/15600/badge)](https://www.bestpractices.dev/en/projects/15600)
+
+OpenSSF assessment: 97%; reporting-history criteria remain unclaimed.
+
 Standard evaluator result contract for evidence, provenance, uncertainty, and recovery — a provider-neutral protocol for extensions that evaluate artifact quality between Spec-Driven Development phases.
 
 ## Overview
@@ -73,7 +77,7 @@ Reload the agent session after installation if the skills are not visible.
 
 The source [evaluator-contract skill](skills/evaluator-contract/SKILL.md) also
 guides direct composition from a checkout without Spec Kit; this onboarding skill
-is an unreleased addition. A composer does not produce the evidence it combines.
+is included from extension v1.1.2. A composer does not produce the evidence it combines.
 For standalone AEE assessment, use the engine's
 [direct agent skill](https://applied-epistemic-engineering.readthedocs.io/en/latest/agent/).
 The command examples below remain useful to agents and CLI users alike.
