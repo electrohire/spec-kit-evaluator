@@ -286,7 +286,7 @@ def _classify_file(
     """
     try:
         raw = filepath.read_text(encoding="utf-8")
-    except OSError as exc:
+    except (OSError, UnicodeError) as exc:
         return "invalid", f"unreadable result file: {exc}"
     try:
         data = json.loads(raw)

@@ -275,6 +275,12 @@ Installed into a project (.specify/extensions/evaluator/):
     └── report-<phase>-<ts>.md
 ```
 
+## Security reporting
+
+Report suspected vulnerabilities privately using the process in
+[SECURITY.md](SECURITY.md). Ordinary bugs and enhancement requests belong in
+[GitHub Issues](https://github.com/electrohire/spec-kit-evaluator/issues).
+
 ## License
 
 MIT — see the [LICENSE](./LICENSE).

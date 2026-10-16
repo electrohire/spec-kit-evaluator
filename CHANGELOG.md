@@ -5,10 +5,17 @@ All notable changes to the Evaluator Contract extension will be documented in th
 ## Unreleased
 
 ### Changed
+- Publish the private vulnerability reporting policy, add a Python lint gate,
+  and fuzz malformed result bytes across all three composition strategies.
+
 - Add an evaluator agent skill for standalone and Spec Kit composition and
   document natural-language use of the installed operation skills.
 - Clarify distribution and extension names, the limits of composition and
   independent evaluation, and this repository's own Spec Kit/AEE setup.
+
+### Fixed
+- Treat non-UTF-8 result files as blocking invalid input instead of allowing
+  a Unicode decoding traceback to escape composition.
 
 ## [1.1.1] - 2026-10-15
 

@@ -18,11 +18,19 @@ on Python 3.11 (for example, no same-quote nesting inside f-strings).
 ```bash
 python -m pip install -r requirements.txt pyyaml
 python -m unittest discover -s tests -v
+python -m pip install ruff==0.17.0
+python -m ruff check scripts tests
 ```
 
 The Bash composer legs need `bash` and `jq` (not run on Windows); the
 PowerShell legs need `pwsh`. CI fails when a required tool is missing instead
 of skipping the leg.
+
+The suite includes reproducible malformed-input fuzzing across all composition
+strategies. It checks fail-closed outcomes, output schema validity, and input
+immutability. Run the full suite, lint, and CodeQL before major releases; retain
+minimized regression cases for any discovered issue. Confirmed exploitable
+static/dynamic-analysis findings must be fixed according to [SECURITY.md](SECURITY.md).
 
 ## Release and catalog submission checklist
 
