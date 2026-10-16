@@ -4,6 +4,10 @@ All notable changes to the Evaluator Contract extension will be documented in th
 
 ## Unreleased
 
+### Changed
+- Refresh the repository’s installed Spec Kit/AEE tooling, align the CodeQL
+  init/analyze action versions, and adopt the dependency bot’s jsonschema floor.
+
 ## [1.1.2] - 2026-10-16
 
 ### Changed
