@@ -1,8 +1,12 @@
 # Evaluator Contract Extension
 
+[![CI](https://github.com/electrohire/spec-kit-evaluator/actions/workflows/test.yml/badge.svg)](https://github.com/electrohire/spec-kit-evaluator/actions/workflows/test.yml)
+[![CodeQL](https://github.com/electrohire/spec-kit-evaluator/actions/workflows/codeql.yml/badge.svg)](https://github.com/electrohire/spec-kit-evaluator/actions/workflows/codeql.yml)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/electrohire/spec-kit-evaluator/badge)](https://securityscorecards.dev/viewer/?uri=github.com/electrohire/spec-kit-evaluator)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/15600/badge)](https://www.bestpractices.dev/en/projects/15600)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-OpenSSF assessment: 97%; reporting-history criteria remain unclaimed.
+OpenSSF Best Practices assessment: 97% (in progress); reporting-history criteria remain unclaimed.
 
 Standard evaluator result contract for evidence, provenance, uncertainty, and recovery — a provider-neutral protocol for extensions that evaluate artifact quality between Spec-Driven Development phases.
 
