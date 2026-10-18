@@ -1,50 +1,28 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# Spec Kit Evaluator Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Preserve component ownership
+Deterministic provider-neutral result contract and composition. The Python distribution applied-epistemic-engineering owns claim analysis, evidence freshness, link integrity and epistemic state. Never duplicate its scoring in the adapter/composer (CONTRIBUTING.md).
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Fail closed at trust boundaries
+Missing, malformed, stale or unsupported evidence cannot imply a pass. Keep observed, inferred, asserted, contradicted and unsupported evidence distinct. An agent summary never supplies trusted CI identity or human authorization. Never execute commands while ingesting evidence.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Deterministic, compatible contracts
+Keep released1.0 consumers compatible; version new behavior explicitly. Preserve Python/Bash/PowerShell contract parity where supported. Unknown versions produce inspectable errors, never optimistic success. Preserve immutable published tags and hashes.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Actual verification before claims
+Regression-test changed behavior, malformed inputs and security boundaries. Run real integration tests and all required Linux/macOS/Windows × Python3.11/3.12/3.13 checks. Measure line and branch coverage honestly; never omit guards to inflate it. A passing assessment does not certify truth, safety or correctness.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Agent usability with inspectable evidence
+Maintain operation skills, explicit artifacts, provenance and actionable recovery so users can request work without learning CLI syntax. Preserve draft status and unresolved contradictions across handoffs. Keep packaging dependencies and names clear in all interfaces.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Development and release constraints
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
-
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
-
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+Follow CONTRIBUTING.md, DEVELOPMENT.md and SECURITY.md. Run actual AEE assessments and Evaluator composition after specification, plan, tasks and implementation. Separate machine findings from unrecorded human acceptance. Reviewable PRs and exact-head green CI precede merges. The authorized temporary review-only exception must preserve other controls and restore the exact policy immediately. Disclose AI assistance. No product release during the frozen baseline benchmark; feature environments stay isolated.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+These principles instantiate existing contribution/security rules and the user's2026-10-18 execution-control requirements; repository source instructions resolve implementation details. Amend with a reviewed rationale and semantic version. This replaces an unfilled template, not historical constitutional evidence.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**:1.0.0 | **Ratified**:2026-10-18 | **Last Amended**:2026-10-18

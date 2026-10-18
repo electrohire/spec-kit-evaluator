@@ -1,0 +1,77 @@
+{
+  "schema_version": "1.0",
+  "claims": [
+    {
+      "id": "EC-001",
+      "text": "Versioned execution evidence envelope and explicit preflight phase compatibility",
+      "kind": "requirement",
+      "status": "draft",
+      "stage": "created",
+      "boundary": [
+        "This repository and linked execution-control issues; no truth certification"
+      ],
+      "depends_on": [],
+      "conflicts_with": [],
+      "falsification_tests": [
+        "Adversarial/unit/integration evidence demonstrates a violation of this requirement."
+      ],
+      "source_ref": "specs/002-execution-control-contract/spec.md",
+      "uncertainty": "high",
+      "evidence": []
+    },
+    {
+      "id": "EC-002",
+      "text": "Fail-closed malformed/unknown contract handling",
+      "kind": "requirement",
+      "status": "draft",
+      "stage": "created",
+      "boundary": [
+        "This repository and linked execution-control issues; no truth certification"
+      ],
+      "depends_on": [],
+      "conflicts_with": [],
+      "falsification_tests": [
+        "Adversarial/unit/integration evidence demonstrates a violation of this requirement."
+      ],
+      "source_ref": "specs/002-execution-control-contract/spec.md",
+      "uncertainty": "high",
+      "evidence": []
+    },
+    {
+      "id": "EC-003",
+      "text": "Deterministic evidence-status composition without duplicate AEE scoring",
+      "kind": "requirement",
+      "status": "draft",
+      "stage": "created",
+      "boundary": [
+        "This repository and linked execution-control issues; no truth certification"
+      ],
+      "depends_on": [],
+      "conflicts_with": [],
+      "falsification_tests": [
+        "Adversarial/unit/integration evidence demonstrates a violation of this requirement."
+      ],
+      "source_ref": "specs/002-execution-control-contract/spec.md",
+      "uncertainty": "high",
+      "evidence": []
+    },
+    {
+      "id": "EC-004",
+      "text": "Python/Bash/PowerShell parity and preserved1.0 result compatibility",
+      "kind": "requirement",
+      "status": "draft",
+      "stage": "created",
+      "boundary": [
+        "This repository and linked execution-control issues; no truth certification"
+      ],
+      "depends_on": [],
+      "conflicts_with": [],
+      "falsification_tests": [
+        "Adversarial/unit/integration evidence demonstrates a violation of this requirement."
+      ],
+      "source_ref": "specs/002-execution-control-contract/spec.md",
+      "uncertainty": "high",
+      "evidence": []
+    }
+  ]
+}

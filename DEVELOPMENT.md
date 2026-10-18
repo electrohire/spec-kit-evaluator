@@ -1,6 +1,6 @@
 # Development setup and dependency map
 
-This repository uses Spec Kit **1.2.0**, the latest published CLI at this audit,
+This repository uses Spec Kit **1.2.1**, refreshed for this feature audit,
 with AEE extension **1.5.2** and evaluator extension **1.1.2** installed into its
 own `.specify/` tree. The compatible published engine tested is **1.5.3**.
 These are installed releases, not unreleased copies of this repository's code.
@@ -19,11 +19,11 @@ requirements for the standalone engine. Neither extension is a pip package.
 
 ## Refresh the project's tools
 
-Install `specify-cli==1.2.0` in a dedicated Python environment and put its scripts
+Install `specify-cli==1.2.1` in a dedicated Python environment and put its scripts
 directory on PATH. From this repository's root:
 
 ```bash
-specify init --here --force --non-interactive --integration copilot --script sh --ignore-agent-tools
+specify init --here --force --non-interactive --integration copilot --integration-options='--skills' --script py
 specify extension add aee
 specify extension list
 ```
@@ -81,3 +81,7 @@ explains standalone Python/CLI use, the direct agent skill, and Spec Kit operati
 skills. Users can ask the agent in ordinary language; the agent handles command
 syntax and reports the actual checks and unresolved evidence. Source onboarding
 skills added under Unreleased do not silently appear in already published packages.
+
+## Execution-control feature work
+
+The isolated `feat/execution-evidence-control-loop` branch tracks the linked execution-control requests. Plans/tasks and actual specification/planning/task AEE results exist; `iterate` preserves draft requirements and unrecorded human acceptance. Installed local tools remain released AEE1.5.2/evaluator1.1.2/engine1.5.3. Source changes are not automatically installed into the separate frozen benchmark environment. Do not release while the before study is running.

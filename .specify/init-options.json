@@ -5,6 +5,6 @@
   "feature_numbering": "sequential",
   "here": true,
   "integration": "copilot",
-  "script": "sh",
-  "speckit_version": "1.2.0"
+  "script": "py",
+  "speckit_version": "1.2.1"
 }

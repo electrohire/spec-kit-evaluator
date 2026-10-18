@@ -1,0 +1,77 @@
+{
+  "schema_version": "1.0",
+  "claims": [
+    {
+      "id": "PLAN-EC-001",
+      "text": "Proposed implementation plan: Versioned execution evidence envelope and explicit preflight phase compatibility",
+      "kind": "decision",
+      "status": "draft",
+      "stage": "created",
+      "boundary": [
+        "Proposed design only; implementation/testing/human acceptance pending"
+      ],
+      "depends_on": [],
+      "conflicts_with": [],
+      "falsification_tests": [
+        "Adversarial/unit/integration evidence demonstrates a violation of this requirement."
+      ],
+      "source_ref": "specs/002-execution-control-contract/plan.md",
+      "uncertainty": "high",
+      "evidence": []
+    },
+    {
+      "id": "PLAN-EC-002",
+      "text": "Proposed implementation plan: Fail-closed malformed/unknown contract handling",
+      "kind": "decision",
+      "status": "draft",
+      "stage": "created",
+      "boundary": [
+        "Proposed design only; implementation/testing/human acceptance pending"
+      ],
+      "depends_on": [],
+      "conflicts_with": [],
+      "falsification_tests": [
+        "Adversarial/unit/integration evidence demonstrates a violation of this requirement."
+      ],
+      "source_ref": "specs/002-execution-control-contract/plan.md",
+      "uncertainty": "high",
+      "evidence": []
+    },
+    {
+      "id": "PLAN-EC-003",
+      "text": "Proposed implementation plan: Deterministic evidence-status composition without duplicate AEE scoring",
+      "kind": "decision",
+      "status": "draft",
+      "stage": "created",
+      "boundary": [
+        "Proposed design only; implementation/testing/human acceptance pending"
+      ],
+      "depends_on": [],
+      "conflicts_with": [],
+      "falsification_tests": [
+        "Adversarial/unit/integration evidence demonstrates a violation of this requirement."
+      ],
+      "source_ref": "specs/002-execution-control-contract/plan.md",
+      "uncertainty": "high",
+      "evidence": []
+    },
+    {
+      "id": "PLAN-EC-004",
+      "text": "Proposed implementation plan: Python/Bash/PowerShell parity and preserved1.0 result compatibility",
+      "kind": "decision",
+      "status": "draft",
+      "stage": "created",
+      "boundary": [
+        "Proposed design only; implementation/testing/human acceptance pending"
+      ],
+      "depends_on": [],
+      "conflicts_with": [],
+      "falsification_tests": [
+        "Adversarial/unit/integration evidence demonstrates a violation of this requirement."
+      ],
+      "source_ref": "specs/002-execution-control-contract/plan.md",
+      "uncertainty": "high",
+      "evidence": []
+    }
+  ]
+}

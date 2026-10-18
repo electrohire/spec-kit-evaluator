@@ -1,0 +1,77 @@
+{
+  "schema_version": "1.0",
+  "claims": [
+    {
+      "id": "TASKS-EC-001",
+      "text": "Planned task coverage: Versioned execution evidence envelope and explicit preflight phase compatibility",
+      "kind": "decision",
+      "status": "draft",
+      "stage": "created",
+      "boundary": [
+        "Task design only; implementation/complete coverage/human acceptance pending"
+      ],
+      "depends_on": [],
+      "conflicts_with": [],
+      "falsification_tests": [
+        "Adversarial/unit/integration evidence demonstrates a violation of this requirement."
+      ],
+      "source_ref": "specs/002-execution-control-contract/tasks.md",
+      "uncertainty": "high",
+      "evidence": []
+    },
+    {
+      "id": "TASKS-EC-002",
+      "text": "Planned task coverage: Fail-closed malformed/unknown contract handling",
+      "kind": "decision",
+      "status": "draft",
+      "stage": "created",
+      "boundary": [
+        "Task design only; implementation/complete coverage/human acceptance pending"
+      ],
+      "depends_on": [],
+      "conflicts_with": [],
+      "falsification_tests": [
+        "Adversarial/unit/integration evidence demonstrates a violation of this requirement."
+      ],
+      "source_ref": "specs/002-execution-control-contract/tasks.md",
+      "uncertainty": "high",
+      "evidence": []
+    },
+    {
+      "id": "TASKS-EC-003",
+      "text": "Planned task coverage: Deterministic evidence-status composition without duplicate AEE scoring",
+      "kind": "decision",
+      "status": "draft",
+      "stage": "created",
+      "boundary": [
+        "Task design only; implementation/complete coverage/human acceptance pending"
+      ],
+      "depends_on": [],
+      "conflicts_with": [],
+      "falsification_tests": [
+        "Adversarial/unit/integration evidence demonstrates a violation of this requirement."
+      ],
+      "source_ref": "specs/002-execution-control-contract/tasks.md",
+      "uncertainty": "high",
+      "evidence": []
+    },
+    {
+      "id": "TASKS-EC-004",
+      "text": "Planned task coverage: Python/Bash/PowerShell parity and preserved1.0 result compatibility",
+      "kind": "decision",
+      "status": "draft",
+      "stage": "created",
+      "boundary": [
+        "Task design only; implementation/complete coverage/human acceptance pending"
+      ],
+      "depends_on": [],
+      "conflicts_with": [],
+      "falsification_tests": [
+        "Adversarial/unit/integration evidence demonstrates a violation of this requirement."
+      ],
+      "source_ref": "specs/002-execution-control-contract/tasks.md",
+      "uncertainty": "high",
+      "evidence": []
+    }
+  ]
+}
