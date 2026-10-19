@@ -52,6 +52,10 @@ and this repository's [development setup](DEVELOPMENT.md).
 
 For the complete AEE workflow in an initialized Spec Kit project:
 
+First register the [ElectroHire publisher catalog](https://github.com/electrohire/spec-kit-aee#installation)
+once per project (or use an organization catalog containing AEE). The default
+community catalog is discovery-only, including in Specify 1.2.2. Then install by name:
+
 ```bash
 specify extension add aee
 ```
