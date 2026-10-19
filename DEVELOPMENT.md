@@ -24,6 +24,7 @@ directory on PATH. From this repository's root:
 
 ```bash
 specify init --here --force --non-interactive --integration copilot --script sh --ignore-agent-tools
+specify extension catalog add https://raw.githubusercontent.com/electrohire/spec-kit-aee/main/catalog.json --name electrohire --install-allowed
 specify extension add aee
 specify extension list
 ```
@@ -33,15 +34,15 @@ generated files. Existing project constitution content is retained by Spec Kit.
 
 ## Troubleshooting older installations
 
-Earlier tested installations (Spec Kit 1.2.0 with AEE 1.5.1) used a discovery-only
-default community catalog. If one of those installations refuses installation by
-ID, use the known release archives below or follow the installer version's own
-catalog guidance. Do not change catalog trust silently. This is a fallback for
-older setups, not the primary installation workflow for the upcoming update.
+The default community catalog is discovery-only, including in Specify 1.2.2.
+This is a current source policy, not an older-version bug. Use the one-time
+[publisher catalog setup](https://github.com/electrohire/spec-kit-aee#installation)
+for installation by name. If you prefer a reviewed, pinned archive or cannot use
+a publisher catalog, the current releases are:
 
 ```bash
-specify extension add aee --from https://github.com/electrohire/spec-kit-aee/archive/refs/tags/v1.5.1.zip --force
-specify extension add evaluator --from https://github.com/electrohire/spec-kit-evaluator/archive/refs/tags/v1.1.1.zip --force
+specify extension add aee --from https://github.com/electrohire/spec-kit-aee/archive/refs/tags/v1.5.2.zip
+specify extension add evaluator --from https://github.com/electrohire/spec-kit-evaluator/archive/refs/tags/v1.1.2.zip
 ```
 
 Review and accept the CLI's source-trust prompt for these project-owned archives.

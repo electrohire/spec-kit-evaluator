@@ -4,6 +4,10 @@ All notable changes to the Evaluator Contract extension will be documented in th
 
 ## Unreleased
 
+- Document installation by name after one-time publisher catalog registration;
+  clarify that the current community catalog remains discovery-only and that
+  AEE provisions runtime dependencies on first use.
+
 ### Added
 - Run coverage-guided Atheris composition fuzzing through ClusterFuzzLite, with
   shared corpus/invariant tests on Linux, macOS, and Windows.
