@@ -58,6 +58,9 @@ _SCHEMA_PATH = (
     / "schemas" / "evaluator-result.schema.json"
 )
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from verified_write import SafeWriteError, write_text_verified  # noqa: E402
+
 # -- Outcome precedence for strict composition (most severe first) ----------
 _STRICT_PRECEDENCE = [
     "block",
@@ -773,8 +776,14 @@ def main(argv: list[str] | None = None) -> int:
     output_json = json.dumps(composed, indent=2, ensure_ascii=False)
 
     if args.output:
-        args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(output_json + "\n", encoding="utf-8")
+        # Verified write (fleet standard, 2026-10-28): a torn or
+        # empty composed result must never be reported as written;
+        # failure is a hard error (exit 2), not the gate outcome.
+        try:
+            write_text_verified(args.output, output_json + "\n")
+        except SafeWriteError as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 2
         print(f"Composed result written to {args.output}")
     else:
         print(output_json)

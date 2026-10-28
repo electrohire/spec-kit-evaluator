@@ -42,6 +42,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from verified_write import SafeWriteError, write_text_verified  # noqa: E402
+
 EVALUATOR_ID = "spec-structure"
 EVALUATOR_VERSION = "1.0.0"
 EVALUATOR_NAME = "Spec Structure (reference evaluator)"
@@ -416,8 +419,14 @@ def main(argv: list[str] | None = None) -> int:
     output_json = json.dumps(result, indent=2, ensure_ascii=False)
 
     if args.output:
-        args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(output_json + "\n", encoding="utf-8")
+        # Verified write (fleet standard, 2026-10-28): a torn or
+        # empty output must never be reported as written; failure
+        # fails the run closed with a nonzero return.
+        try:
+            write_text_verified(args.output, output_json + "\n")
+        except SafeWriteError as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            return 2
         print(f"Evaluator result written to {args.output}")
     else:
         print(output_json)
