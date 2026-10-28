@@ -1,7 +1,9 @@
 """Verified-write retrofit tests (fleet standard, 2026-10-28).
 
-Unit level: the vendored writer lands exact bytes, recovers through
-the fresh-subprocess attempt when in-process writes keep failing,
+The writer is embedded in each script (they ship as single
+declared files), so the unit tests exercise the composer's copy
+through a module load. It lands exact bytes, recovers through the
+fresh-subprocess attempt when in-process writes keep failing,
 refuses empty content, and raises when every attempt fails.
 End to end: both scripts' --output paths produce files whose bytes
 parse back to the emitted result.
@@ -11,6 +13,7 @@ Run:  python3 -m unittest tests.test_verified_write_output -v
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import subprocess
 import sys
@@ -24,9 +27,18 @@ SCRIPTS = REPO_ROOT / "scripts" / "python"
 COMPOSE = SCRIPTS / "compose_results.py"
 EVALUATOR = SCRIPTS / "spec_structure_evaluator.py"
 
-sys.path.insert(0, str(SCRIPTS))
-import verified_write  # noqa: E402
-from verified_write import SafeWriteError, write_text_verified  # noqa: E402
+
+def _load_composer():
+    spec = importlib.util.spec_from_file_location("compose_results", COMPOSE)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+composer = _load_composer()
+SafeWriteError = composer.SafeWriteError
+write_text_verified = composer.write_text_verified
 
 
 class VerifiedWriteUnitTests(unittest.TestCase):
@@ -49,24 +61,22 @@ class VerifiedWriteUnitTests(unittest.TestCase):
 
     def test_recovers_via_child_when_local_attempts_fail(self):
         target = self.dir / "result.json"
-        with mock.patch.object(verified_write, "try_write_once", return_value=False):
-            # The mock also neutralizes the child's in-file call only
-            # in THIS process; the child is a fresh interpreter whose
-            # try_write_once is the real one, keyed off argv mode.
-            real_child = verified_write._try_child
-            result = verified_write.write_file_verified(target, b"payload\n")
+        with mock.patch.object(composer, "_try_write_once", return_value=False):
+            # The child is a fresh interpreter running an inline
+            # bootstrap, so patching this process's local attempt
+            # does not affect it.
+            result = write_text_verified(target, "payload\n")
         self.assertTrue(result["via"].startswith("child-"))
         self.assertEqual(target.read_bytes(), b"payload\n")
-        self.assertIsNotNone(real_child)
 
     def test_total_failure_raises_and_writes_nothing(self):
         target = self.dir / "result.json"
         with (
-            mock.patch.object(verified_write, "try_write_once", return_value=False),
-            mock.patch.object(verified_write, "_try_child", return_value=False),
+            mock.patch.object(composer, "_try_write_once", return_value=False),
+            mock.patch.object(composer, "_try_child_write", return_value=False),
         ):
             with self.assertRaises(SafeWriteError):
-                verified_write.write_file_verified(target, b"payload\n")
+                write_text_verified(target, "payload\n")
         self.assertFalse(target.exists())
 
 

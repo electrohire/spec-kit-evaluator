@@ -35,15 +35,143 @@ result), 2 on usage/IO errors (missing feature directory, bad phase).
 from __future__ import annotations
 
 import argparse
+import base64
+import hashlib
 import json
+import os
 import re
+import subprocess
 import sys
+import tempfile
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from verified_write import SafeWriteError, write_text_verified  # noqa: E402
+
+# ---------------------------------------------------------------------------
+# Verified writes (fleet standard, 2026-10-28), embedded because this
+# script ships as a single declared file (extension.yml) and is also
+# packaged standalone by the fuzz build: temp file in the destination
+# directory + fsync + atomic rename + read-back hash verify, bounded
+# retries including a fresh subprocess (run from an inline bootstrap,
+# so no sibling module is needed), and SafeWriteError when every
+# attempt fails so the caller fails the run closed. A 0-byte or
+# partial file never stands as a successful write.
+# ---------------------------------------------------------------------------
+
+
+class SafeWriteError(RuntimeError):
+    """Every verified-write attempt failed; nothing was committed."""
+
+
+_CHILD_BOOTSTRAP = (
+    "import base64, os, sys, tempfile\n"
+    "data = base64.b64decode(sys.argv[1])\n"
+    "target = sys.argv[2]\n"
+    "directory = os.path.dirname(os.path.abspath(target))\n"
+    "fd, tmp = tempfile.mkstemp(dir=directory, prefix='.vw-', suffix='.tmp')\n"
+    "ok = False\n"
+    "try:\n"
+    "    with os.fdopen(fd, 'wb') as handle:\n"
+    "        handle.write(data); handle.flush(); os.fsync(handle.fileno())\n"
+    "    os.replace(tmp, target)\n"
+    "    with open(target, 'rb') as handle:\n"
+    "        ok = handle.read() == data\n"
+    "except OSError:\n"
+    "    try: os.unlink(tmp)\n"
+    "    except OSError: pass\n"
+    "sys.exit(0 if ok else 1)\n"
+)
+
+
+def _fsync_dir(directory: Path) -> None:
+    try:
+        fd = os.open(directory, os.O_RDONLY)
+    except OSError:
+        return
+    try:
+        os.fsync(fd)
+    except OSError:
+        pass
+    finally:
+        os.close(fd)
+
+
+def _try_write_once(path: Path, data: bytes) -> bool:
+    directory = path.parent
+    tmp_name: str | None = None
+    try:
+        directory.mkdir(parents=True, exist_ok=True)
+        fd, tmp_name = tempfile.mkstemp(
+            dir=directory, prefix=".evaluator-verified-", suffix=".tmp"
+        )
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(data)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(tmp_name, path)
+        tmp_name = None
+        _fsync_dir(directory)
+        return path.read_bytes() == data
+    except OSError:
+        return False
+    finally:
+        if tmp_name is not None:
+            try:
+                os.unlink(tmp_name)
+            except OSError:
+                pass
+
+
+def _try_child_write(path: Path, data: bytes) -> bool:
+    try:
+        completed = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                _CHILD_BOOTSTRAP,
+                base64.b64encode(data).decode("ascii"),
+                str(path),
+            ],
+            capture_output=True,
+            timeout=30,
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return completed.returncode == 0
+
+
+def write_text_verified(path: Path, text: str) -> dict:
+    data = text.encode("utf-8")
+    if not data:
+        raise ValueError(f"refusing to write an empty file: {path}")
+    attempts = 0
+    for index in range(3):
+        attempts += 1
+        if _try_write_once(path, data):
+            return {
+                "path": str(path),
+                "bytes": len(data),
+                "sha256": hashlib.sha256(data).hexdigest(),
+                "via": f"local-{index + 1}",
+            }
+        time.sleep(0.25 * (index + 1))
+    for index in range(2):
+        attempts += 1
+        if _try_child_write(path, data):
+            return {
+                "path": str(path),
+                "bytes": len(data),
+                "sha256": hashlib.sha256(data).hexdigest(),
+                "via": f"child-{index + 1}",
+            }
+        time.sleep(0.5)
+    raise SafeWriteError(
+        f"verified write failed after {attempts} attempts: {path} "
+        f"({len(data)} bytes, sha256 {hashlib.sha256(data).hexdigest()})"
+    )
 
 EVALUATOR_ID = "spec-structure"
 EVALUATOR_VERSION = "1.0.0"
