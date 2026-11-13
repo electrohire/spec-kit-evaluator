@@ -1,0 +1,350 @@
+{
+  "claims": [
+    {
+      "id": "DRIFT-001",
+      "text": "The structural mirror accepts every bundle the current engine writes.",
+      "kind": "requirement",
+      "status": "supported",
+      "boundary": [
+        "spec-kit-evaluator structural checks only"
+      ],
+      "depends_on": [
+        "DRIFT-002",
+        "DRIFT-003",
+        "DRIFT-004",
+        "DRIFT-005",
+        "DRIFT-006"
+      ],
+      "conflicts_with": [],
+      "evidence": [
+        {
+          "ref": "scripts/python/spec_structure_evaluator.py",
+          "kind": "observed",
+          "direction": "supports",
+          "source_quality": "artifact",
+          "description": "Mirror field sets inspected directly.",
+          "source_id": "",
+          "independent_of": [],
+          "observed_at": null,
+          "content_hash": "sha256:0123456789abcdef",
+          "content_hash_status": "declared_not_verified"
+        },
+        {
+          "ref": "explanation given in the drift-fix review",
+          "kind": "exposition",
+          "direction": "context",
+          "source_quality": "human",
+          "description": "A named human explained the claim.",
+          "source_id": "drift-fix-author",
+          "independent_of": [],
+          "observed_at": null,
+          "content_hash": null
+        },
+        {
+          "ref": "engine src/aee/model.py Claim._FIELDS",
+          "kind": "asserted",
+          "direction": "supports",
+          "source_quality": "primary",
+          "description": "Engine field set read at commit 0f2efcf.",
+          "source_id": "",
+          "independent_of": [],
+          "observed_at": null,
+          "content_hash": null
+        }
+      ],
+      "assumptions": [
+        "The mirror is meant to track the engine loader's accepted sets."
+      ],
+      "alternatives": [
+        "Import the engine at runtime (rejected: evaluator neutrality)."
+      ],
+      "falsification_tests": [
+        "Re-run the structural evaluator against this bundle and inspect findings."
+      ],
+      "uncertainty": "low",
+      "severity": "high",
+      "source_ref": "stack red team audit, 2026-11-12",
+      "domain": "spec-kit-evaluator",
+      "confidence": 0.9,
+      "confidence_band": "high",
+      "failures": [],
+      "metadata": {},
+      "dispositions": [],
+      "stage": "accepted",
+      "stage_events": [
+        {
+          "kind": "checked",
+          "author": "aee-assessment",
+          "date": "2026-11-12",
+          "basis": "Engine assessment run recorded against this bundle."
+        },
+        {
+          "kind": "accepted",
+          "author": "drift-fix-author",
+          "date": "2026-11-12",
+          "basis": "Recorded human acceptance of the headline claim."
+        }
+      ],
+      "headline": true,
+      "role": null
+    },
+    {
+      "id": "DRIFT-002",
+      "text": "Sub-claim discharging the 'statement-fidelity' decomposition role.",
+      "kind": "observation",
+      "status": "partially_supported",
+      "boundary": [],
+      "depends_on": [],
+      "conflicts_with": [],
+      "evidence": [],
+      "assumptions": [],
+      "alternatives": [],
+      "falsification_tests": [
+        "Re-run the structural evaluator against this bundle and inspect findings."
+      ],
+      "uncertainty": "insufficient_evidence",
+      "severity": "medium",
+      "source_ref": "",
+      "domain": "",
+      "confidence": null,
+      "confidence_band": "unknown",
+      "failures": [],
+      "metadata": {},
+      "dispositions": [],
+      "stage": "digested",
+      "stage_events": [],
+      "headline": false,
+      "role": "statement-fidelity"
+    },
+    {
+      "id": "DRIFT-003",
+      "text": "Sub-claim discharging the 'evidence-verification' decomposition role.",
+      "kind": "inference",
+      "status": "partially_supported",
+      "boundary": [],
+      "depends_on": [],
+      "conflicts_with": [],
+      "evidence": [],
+      "assumptions": [],
+      "alternatives": [],
+      "falsification_tests": [
+        "Re-run the structural evaluator against this bundle and inspect findings."
+      ],
+      "uncertainty": "insufficient_evidence",
+      "severity": "medium",
+      "source_ref": "",
+      "domain": "",
+      "confidence": null,
+      "confidence_band": "unknown",
+      "failures": [],
+      "metadata": {},
+      "dispositions": [],
+      "stage": "explained",
+      "stage_events": [],
+      "headline": false,
+      "role": "evidence-verification"
+    },
+    {
+      "id": "DRIFT-004",
+      "text": "Sub-claim discharging the 'novelty' decomposition role.",
+      "kind": "hypothesis",
+      "status": "partially_supported",
+      "boundary": [],
+      "depends_on": [],
+      "conflicts_with": [],
+      "evidence": [],
+      "assumptions": [],
+      "alternatives": [],
+      "falsification_tests": [
+        "Re-run the structural evaluator against this bundle and inspect findings."
+      ],
+      "uncertainty": "insufficient_evidence",
+      "severity": "medium",
+      "source_ref": "",
+      "domain": "",
+      "confidence": null,
+      "confidence_band": "unknown",
+      "failures": [],
+      "metadata": {},
+      "dispositions": [],
+      "stage": "checked",
+      "stage_events": [],
+      "headline": false,
+      "role": "novelty"
+    },
+    {
+      "id": "DRIFT-005",
+      "text": "Sub-claim discharging the 'attribution' decomposition role.",
+      "kind": "assumption",
+      "status": "partially_supported",
+      "boundary": [],
+      "depends_on": [],
+      "conflicts_with": [],
+      "evidence": [],
+      "assumptions": [],
+      "alternatives": [],
+      "falsification_tests": [
+        "Re-run the structural evaluator against this bundle and inspect findings."
+      ],
+      "uncertainty": "insufficient_evidence",
+      "severity": "medium",
+      "source_ref": "",
+      "domain": "",
+      "confidence": null,
+      "confidence_band": "unknown",
+      "failures": [],
+      "metadata": {},
+      "dispositions": [],
+      "stage": "created",
+      "stage_events": [],
+      "headline": false,
+      "role": "attribution"
+    },
+    {
+      "id": "DRIFT-006",
+      "text": "Sub-claim discharging the 'significance' decomposition role.",
+      "kind": "prediction",
+      "status": "partially_supported",
+      "boundary": [],
+      "depends_on": [],
+      "conflicts_with": [],
+      "evidence": [],
+      "assumptions": [],
+      "alternatives": [],
+      "falsification_tests": [
+        "Re-run the structural evaluator against this bundle and inspect findings."
+      ],
+      "uncertainty": "insufficient_evidence",
+      "severity": "medium",
+      "source_ref": "",
+      "domain": "",
+      "confidence": null,
+      "confidence_band": "unknown",
+      "failures": [],
+      "metadata": {},
+      "dispositions": [],
+      "stage": "accepted",
+      "stage_events": [],
+      "headline": false,
+      "role": "significance"
+    },
+    {
+      "id": "DRIFT-007",
+      "text": "Stored dispositions and regenerated failures round-trip through the mirror.",
+      "kind": "decision",
+      "status": "superseded",
+      "boundary": [],
+      "depends_on": [],
+      "conflicts_with": [
+        "DRIFT-001"
+      ],
+      "evidence": [
+        {
+          "ref": "counterexample search notes",
+          "kind": "contradicted",
+          "direction": "contradicts",
+          "source_quality": "secondary",
+          "description": "A contradicting item, kept for coverage.",
+          "source_id": "",
+          "independent_of": [],
+          "observed_at": null,
+          "content_hash": null
+        },
+        {
+          "ref": "derived summary",
+          "kind": "inferred",
+          "direction": "context",
+          "source_quality": "model",
+          "description": "An inferred item, kept for coverage.",
+          "source_id": "",
+          "independent_of": [],
+          "observed_at": null,
+          "content_hash": null
+        },
+        {
+          "ref": "unbacked note",
+          "kind": "unsupported",
+          "direction": "context",
+          "source_quality": "unknown",
+          "description": "An unsupported item, kept for coverage.",
+          "source_id": "",
+          "independent_of": [],
+          "observed_at": null,
+          "content_hash": null
+        }
+      ],
+      "assumptions": [],
+      "alternatives": [],
+      "falsification_tests": [
+        "Re-run the structural evaluator against this bundle and inspect findings."
+      ],
+      "uncertainty": "insufficient_evidence",
+      "severity": "medium",
+      "source_ref": "",
+      "domain": "",
+      "confidence": null,
+      "confidence_band": "unknown",
+      "failures": [
+        {
+          "id": "DRIFT-007-F1",
+          "claim_id": "DRIFT-007",
+          "challenge": "Mirror drift challenge",
+          "breakpoint": "stale hand-mirrored field set",
+          "severity": "high",
+          "category": "schema_drift",
+          "recovery_hint": "Regenerate the fixture and re-check the mirror sets.",
+          "resolved": false,
+          "disposition": null
+        }
+      ],
+      "metadata": {
+        "origin": "drift-alarm fixture",
+        "engine_commit": "0f2efcf"
+      },
+      "dispositions": [
+        {
+          "challenge_category": "schema_drift",
+          "kind": "waived",
+          "reason": "Drift is tracked by the fixture test instead of per-run judgment.",
+          "author": "drift-fix-author",
+          "date": "2026-11-12",
+          "successors": [
+            "DRIFT-001"
+          ]
+        }
+      ],
+      "stage": "checked",
+      "stage_events": [],
+      "headline": false,
+      "role": null
+    },
+    {
+      "id": "DRIFT-008",
+      "text": "Minimal claims with defaults still serialize the full current field set.",
+      "kind": "compliance",
+      "status": "draft",
+      "boundary": [],
+      "depends_on": [],
+      "conflicts_with": [],
+      "evidence": [],
+      "assumptions": [],
+      "alternatives": [],
+      "falsification_tests": [
+        "Re-run the structural evaluator against this bundle and inspect findings."
+      ],
+      "uncertainty": "insufficient_evidence",
+      "severity": "medium",
+      "source_ref": "",
+      "domain": "",
+      "confidence": null,
+      "confidence_band": "unknown",
+      "failures": [],
+      "metadata": {},
+      "dispositions": [],
+      "stage": "created",
+      "stage_events": [],
+      "headline": false,
+      "role": null
+    }
+  ]
+}
