@@ -199,5 +199,46 @@ class WalkthroughTests(unittest.TestCase):
         self.assertGreater(len(composed["findings"]), 0)
 
 
+class EngineBundleDriftTests(unittest.TestCase):
+    """Drift alarm: bundles the real engine writes must draw no
+    schema_violation findings from the structural mirror.
+
+    The fixture bundle under tests/fixtures/engine-bundle was
+    generated from applied-epistemic-engineering (see PROVENANCE.md
+    there) by serializing aee.model claims through Claim.to_dict().
+    The evaluator deliberately has no engine dependency; this fixture
+    is the cross-check. If the engine's claim model moves and the
+    mirror's hand-kept sets in spec_structure_evaluator.py do not,
+    this test fails.
+    """
+
+    ENGINE_BUNDLE = REPO_ROOT / "tests" / "fixtures" / "engine-bundle"
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = _load_evaluator_module()
+
+    def test_fixture_actually_exercises_the_drift_surface(self):
+        bundle = json.loads(
+            (self.ENGINE_BUNDLE / "claims.json").read_text(encoding="utf-8"))
+        claims = bundle["claims"]
+        # A regeneration that dropped the drift-surface fields would
+        # silently disarm the alarm; refuse that here.
+        self.assertTrue(any(
+            "stage" in c and "stage_events" in c for c in claims))
+        self.assertTrue(any(c.get("headline") for c in claims))
+        self.assertTrue(any(c.get("role") for c in claims))
+        kinds = {item["kind"] for c in claims for item in c["evidence"]}
+        self.assertIn("exposition", kinds)
+
+    def test_engine_written_bundle_draws_no_schema_violations(self):
+        result = self.mod.evaluate_spec_structure(
+            self.ENGINE_BUNDLE, "after_specify", PINNED_TS)
+        violations = [
+            f for f in result["findings"] if f["kind"] == "schema_violation"]
+        self.assertEqual(violations, [])
+        self.assertEqual(result["outcome"], "pass")
+
+
 if __name__ == "__main__":
     unittest.main()

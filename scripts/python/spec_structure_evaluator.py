@@ -191,15 +191,27 @@ _VALID_PHASES = {
     "after_taskstoissues",
 }
 
-# Structural mirror of the AEE engine's strict loader (engine 1.4.0,
-# src/aee/model.py Claim._FIELDS / Evidence._FIELDS). Kept as data so a
-# future engine field addition is a one-line change here.
+# Structural mirror of the AEE engine's strict loader (engine 1.6.0,
+# src/aee/model.py Claim._FIELDS / Evidence._FIELDS and the ClaimKind /
+# ClaimStatus / EvidenceKind enums). Kept as data so a future engine
+# field addition is a one-line change here. The drift-alarm fixture
+# (tests/fixtures/engine-bundle, generated from the real engine) fails
+# its test if these sets fall behind the engine again.
+# Legacy allowance: "confidence_band" is not a Claim dataclass field
+# (the engine derives it as a property and emits it in to_dict
+# output); historical bundles carry it, so it stays accepted here
+# rather than drawing a schema violation.
+# Deliberately NOT mirrored: the engine's load-time bookkeeping
+# attributes stage_defaulted / stage_derived / unresolved_exposition
+# are never serialized into bundles and are not in Claim._FIELDS, so a
+# bundle carrying them fails the engine's own strict loader and must
+# fail here too.
 _CLAIM_FIELDS = {
     "id", "text", "kind", "status", "boundary", "depends_on",
     "conflicts_with", "evidence", "assumptions", "alternatives",
     "falsification_tests", "uncertainty", "severity", "source_ref",
     "domain", "confidence", "confidence_band", "failures", "metadata",
-    "dispositions",
+    "dispositions", "stage", "stage_events", "headline", "role",
 }
 _EVIDENCE_FIELDS = {
     "ref", "kind", "direction", "source_quality", "description",
@@ -214,7 +226,10 @@ _CLAIM_STATUSES = {
     "draft", "supported", "partially_supported", "unsupported",
     "contradicted", "unverifiable", "superseded",
 }
-_EVIDENCE_KINDS = {"observed", "inferred", "asserted", "contradicted", "unsupported"}
+_EVIDENCE_KINDS = {
+    "observed", "inferred", "asserted", "contradicted", "unsupported",
+    "exposition",
+}
 _LIST_OF_STRING_FIELDS = (
     "boundary", "depends_on", "conflicts_with", "assumptions",
     "alternatives", "falsification_tests",
