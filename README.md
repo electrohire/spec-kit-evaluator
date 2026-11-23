@@ -6,6 +6,19 @@
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/15600/badge)](https://www.bestpractices.dev/en/projects/15600)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
+![A first evaluator run: installing the extension by name, then composing a real AEE-produced result under the strict strategy. The composed outcome is iterate, the input evaluator and its finding count stay named, and the exit code matches the outcome.](assets/evaluator-first-run.png)
+
+**The problem:** In an agent loop, every tool grades work in its own format, or not at all, so findings flatten into a single pass or fail, contradictions disappear, and the next phase starts without knowing what was actually observed and what was only asserted.
+
+The Evaluator Contract extension gives every evaluator the same envelope:
+
+- **One result envelope.** Every evaluator returns the same versioned, schema-checked JSON result (outcome, findings, evidence kinds, provenance, uncertainty), whatever tool produced it.
+- **Observed stays distinct from asserted.** Each finding carries an evidence kind (observed, inferred, asserted, contradicted, unsupported), so a model's say-so never reads as a measurement.
+- **Contradictions are preserved.** Conflicting findings are kept and named in the composed result, not averaged into a false consensus.
+- **No evidence is a block, not a pass.** Composition fails closed: an empty result set composes to block, and a malformed result counts as a blocking violation, never a silent skip.
+- **Outcomes a pipeline can gate on.** Every result ends in a bounded next action (pass, warn, iterate, clarify, gather_evidence, or block), and the composers report it with plain exit codes (0, 1, 2) that CI can enforce.
+- **Same contract in three shells.** The Python, Bash, and PowerShell composers implement the same composition contract, verified against a shared fixture corpus.
+
 OpenSSF Best Practices Passing criteria: 100% met (self-assessment, verified 2026-10-16).
 
 Standard evaluator result contract for evidence, provenance, uncertainty, and recovery — a provider-neutral protocol for extensions that evaluate artifact quality between Spec-Driven Development phases.
